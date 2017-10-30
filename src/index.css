@@ -1,0 +1,8 @@
+.container.full-width {
+  max-width: none;
+}
+
+.site-header .dropzone {
+  height: auto;
+  margin-left: 1rem;
+}

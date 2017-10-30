@@ -1,0 +1,24 @@
+{
+  "name": "edf-viewer",
+  "version": "0.1.0",
+  "homepage": "https://xnat.f4.htw-berlin.de/edf-vis",
+  "private": true,
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "prop-types": "^15.6.0",
+    "query-string": "^5.0.1",
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
+    "react-dropzone": "^4.2.1",
+    "tawian-frontend": "^2.1.4",
+    "typeface-cousine": "0.0.35"
+  },
+  "devDependencies": {
+    "react-scripts": "^1.0.14"
+  },
+  "scripts": {
+    "start": "NODE_PATH=src react-scripts start",
+    "build": "NODE_PATH=src react-scripts build",
+    "deploy": "scp -r build/* xnatuser@xnat.f4.htw-berlin.de:~/edf-vis"
+  }
+}

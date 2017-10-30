@@ -1,0 +1,15 @@
+{
+  "short_name": "copla-editor",
+  "name": "EDF-Viewer und Event-Editor für PSGs",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "256x256",
+      "type": "image/ico"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
