@@ -1,88 +1,114 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import queryString from 'query-string';
-import Graphs from 'components/Graphs';
+import EDF from 'components/EDF-View';
 import Controls from 'components/Controls';
-import WebResource from 'utils/WebResource';
-import FileResource from 'utils/FileResource';
-import Artifacts from 'utils/Artifacts';
+import FileBrowser from 'components/FileBrowser';
+import Bundle from 'utils/ResourceBundle';
 
 export default class extends Component {
 
   state = {
-    edfResource: null,
-    artifacts: null,
+    bundles: [],
+    activeBundle: null,
+    showSidebar: true,
   }
 
-  componentWillMount() {
+  async componentDidMount() {
     const params = queryString.parse(window.location.search);
-    const fileURL = params.edf;
-    const artifactsURL = params.artifacts;
-
-    if (artifactsURL) {
-      this.setArtifacts(new WebResource(artifactsURL));
-    }
-
-    if (fileURL) {
-      this.setState({ edfResource: new WebResource(fileURL) });
+    const edf = params.edf
+    const artifacts = params.artifacts;
+    if (edf) {
+      const bundle = await new Bundle({ edf, artifacts }).load;
+      this.setState({ bundles: [bundle], activeBundle: bundle });
     }
   }
 
-  onEdfDrop = (files = []) => {
-    this.setState({ edfResource: new FileResource(files[0]) });
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.showSidebar !== prevState.showSidebar) { // was sidebar shown or hidden, trigger graph resize
+      window.dispatchEvent(new Event('resize'));
+    }
   }
 
-  onArtifactsDrop = (files = []) => {
-    this.setArtifacts(new FileResource(files[0]));
+  onEdfDrop = async (files = []) => {
+    const newBundles = await Promise.all(files
+      .filter(file => file.name.endsWith('.edf'))
+      .map((edf) => {
+        const artifactsName = edf.name.replace(/\.edf$/, '.txt');
+        const artifacts = files.find(file => file.name === artifactsName);
+        return new Bundle({ edf, artifacts }).load;
+      }));
+
+    const bundles = [...this.state.bundles, ...newBundles];
+
+    if (bundles.length === 1 && !this.state.activeBundle) {
+      this.setState({ bundles, activeBundle: bundles[0] });
+    }
+    else {
+      this.setState({ bundles });
+    }
   }
 
-  setArtifacts = (resource) => {
-    const artifacts = new Artifacts(resource);
-    artifacts.onLoad(() => this.setState({ artifacts }));
-  }
-
-  renderDropzone(wrapperClass = '', childClass = '') {
+  renderDropzone(wrapperClass = '') {
     return (
       <div className={wrapperClass}>
-        <div className={childClass}>
-          <Dropzone
-            onDrop={this.onEdfDrop}
-            multiple={false}
-            disablePreview
-            activeClassName="active"
-            rejectClassName="rejected"
-            className="dropzone truncate"
-          >
-            Drop EDF File
-          </Dropzone>
+        <Dropzone
+          onDrop={this.onEdfDrop}
+          multiple={true}
+          disablePreview
+          activeClassName="active"
+          rejectClassName="rejected"
+          className="dropzone truncate"
+        >
+          Drop EDF and Artifacts Files
+        </Dropzone>
+      </div>
+    );
+  }
+
+  handleSelect = (activeBundle) => {
+    this.setState({ activeBundle });
+  }
+
+  handleSidebarToggle = (showSidebar) => {
+    this.setState({ showSidebar });
+  }
+
+  renderEditor(proxy) {
+    const { edf, artifacts } = this.state.activeBundle || {};
+    const sidebarWidth = this.state.showSidebar ? '15rem' : '0rem';
+    return (
+      <div style={{ display: 'flex', maxWidth: '100%' }}>
+        <div style={{ width: sidebarWidth, zIndex: 10, paddingRight: '1rem' }}>
+          <FileBrowser
+            bundles={this.state.bundles}
+            onSelect={this.handleSelect}
+            onToggle={this.handleSidebarToggle}
+            showSidebar={this.state.showSidebar}
+          />
         </div>
-        <div className={childClass}>
-          <Dropzone
-            onDrop={this.onArtifactsDrop}
-            multiple={false}
-            disablePreview
-            activeClassName="active"
-            rejectClassName="rejected"
-            className="dropzone truncate"
-          >
-            Drop Artifacts  File
-          </Dropzone>
+        <div style={{ width: '100%', maxWidth: `calc(100% - ${sidebarWidth})` }}>
+          {edf
+            ? <EDF key={edf.filename} edf={edf} artifacts={artifacts} controls={proxy} />
+            : <p className="alert alert-info">Select an EDF file to display it.</p>
+          }
         </div>
       </div>
     );
   }
 
   render() {
-    const hasFile = !!this.state.edfResource;
-    const containerClass = `container ${hasFile ? 'full-width' : ''}`;
+    const hasBundle = this.state.bundles.length > 0;
+    const hasActiveBundle = !!this.state.activeBundle;
+    const containerClass = `container ${hasBundle ? 'full-width' : ''}`;
     const proxy = { onClick() {} };
 
     return (
       <div className={containerClass}>
         <header className="site-header dashed-bottom">
-          <a href="/" className="site-title">EDF Viewer</a>
-          <Controls proxy={proxy} />
-          {hasFile && this.renderDropzone('site-nav')}
+          <a href="/" className="site-title">copla-editor</a>
+          {hasActiveBundle && <Controls proxy={proxy} />}
+          {hasBundle && this.renderDropzone('site-nav')}
         </header>
 
         <main className="site-main">
@@ -90,9 +116,9 @@ export default class extends Component {
             <pre className="alert alert-error">{this.state.error.message}</pre>
           }
 
-          {hasFile
-            ? <Graphs edfResource={this.state.edfResource} artifacts={this.state.artifacts} controls={proxy} />
-            : this.renderDropzone('grid-inline', 'cell')
+          {hasBundle
+            ? this.renderEditor(proxy)
+            : this.renderDropzone()
           }
         </main>
 

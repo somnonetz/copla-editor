@@ -10,11 +10,12 @@ export default class extends Component {
     channel: PropTypes.object.isRequired,
     frequency: PropTypes.number,
     data: PropTypes.array,
+    artifacts: PropTypes.array,
     dateWindow: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
   }
 
-  defaultProps = {
+  static defaultProps = {
     data: null,
     frequency: 1,
     artifacts: null,
@@ -47,6 +48,8 @@ export default class extends Component {
 
   componentWillUnmount() {
     if (this.graph) {
+      this.observer.unobserve(this.container);
+      this.observer = null;
       this.graph.destroy();
       this.graph = null;
     }
@@ -118,11 +121,24 @@ export default class extends Component {
 
     this.graph = graph;
     this.attachObserver(graph, this.container);
+    this.addPlotbands(graph, this.props.artifacts);
 
     const span = document.createElement('span');
     span.className = 'graph-label';
     span.innerText = channel.label;
     this.container.append(span);
+  }
+
+  addPlotbands(graph, artifacts) {
+    if (!artifacts) return;
+    artifacts.forEach(({ time, name }) => {
+      graph.addBand({
+        start: time,
+        end: time + 1000,
+        note: name,
+        isEditable: false,
+      });
+    });
   }
 
   handleScrollX = (event) => {
@@ -147,8 +163,8 @@ export default class extends Component {
 
       this.setState({ isVisible });
     };
-    const options = { threshold: 0 };
-    new window.IntersectionObserver(callback, options).observe(container);
+    this.observer = new IntersectionObserver(callback, { threshold: 0 });
+    this.observer.observe(container);
   }
 
   redrawGraph = () => {

@@ -26,7 +26,6 @@ export default class extends Component {
         <Button action="moveLeft">←</Button>
         <Button action="moveRight">→</Button>
         <Button action="play">▶</Button>
-        <Button action="analyze">Analyze</Button>
         {/*<Button action="time" seconds="10">10s</Button>*/}
         <Button action="time" seconds="30">30s</Button>
         {/*<Button action="time" seconds="60">1m</Button>*/}

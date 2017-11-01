@@ -2,6 +2,8 @@ export default class {
 
    constructor(file) {
       this.file = file;
+      this.filename = this.file.name;
+      this.isLocal = true;
       this.reader = new FileReader();
       this.typeMap = {
          text: 'readAsText',
@@ -9,8 +11,8 @@ export default class {
       };
    }
 
-   read(options) {
-      const type = this.typeMap[options.type] || this.typeMap.text;
+   read(options = {}) {
+      const type = this.typeMap[options.type || 'text'];
       const from = options.from || 0;
       const till = options.till || this.file.size;
       const blob = this.file.slice(from, till);

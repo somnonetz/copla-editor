@@ -107,6 +107,6 @@ export default class PlotBands {
     * You should null out any references and detach any DOM elements.
     */
    destroy() {
-      console.log('destroy');
+      // TODO
    }
 }

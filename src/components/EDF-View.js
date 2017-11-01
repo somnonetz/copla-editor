@@ -3,32 +3,29 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Graph from 'components/Graph';
 import Range from 'components/Range';
-import EDF from 'utils/EDF';
 
 const time = date => new Date(date).toLocaleTimeString().replace(' AM', '');
 
 export default class extends Component {
 
   static propTypes = {
-    edfResource: PropTypes.object.isRequired,
+    edf: PropTypes.object.isRequired,
     artifacts: PropTypes.object,
     controls: PropTypes.object,
   }
 
-  defaultProps = {
-    edfResource: null,
-    artifacts: null,
+  static defaultProps = {
+    artifacts: {},
     controls: { onClick() {} },
   }
 
   state = {
-    edf: null,
     dateWindow: [0, 0],
     frequency: 1,
+    data: [],
+    bufferRange: [0, 0],
   }
 
-  data = []
-  bufferRange = [0, 0]
   initialWindowWidth = 30 * 1000
   chunkWidth = 300 * 1000 // 5min / unabhängig von Frequenz, weil feste Datenmenge geladen wird, auch wenn danach Reduktion
   isLoading = false
@@ -42,13 +39,12 @@ export default class extends Component {
   }
 
   async componentDidMount() {
-    const edf = new EDF(this.props.edfResource);
-    const header = await edf.readHeader();
+    const header = await this.props.edf.readHeader();
     const dateWindow = [+header.start, +header.start + this.initialWindowWidth];
 
     this.attachHandlers();
 
-    await this.setStateAsync({ edf, dateWindow });
+    await this.setStateAsync({ dateWindow });
     await this.setFrequency();
 
     this.loadData(...dateWindow); // load visible area only -- less data but faster
@@ -65,8 +61,8 @@ export default class extends Component {
   }
 
   detachHandlers = () => {
-    window.remoEventListener('keydown', this.handleKeydown);
-    window.remoEventListener('resize', this.handleResize);
+    window.removeEventListener('keydown', this.handleKeydown);
+    window.removeEventListener('resize', this.handleResize);
   }
 
   handleKeydown = (e) => {
@@ -91,9 +87,6 @@ export default class extends Component {
       case 'play':
         this.togglePlay();
         break;
-      case 'artifacts':
-        console.log('not implemented yet');
-        break;
       case 'time':
         this.handleTimeButtons(seconds);
         break;
@@ -103,7 +96,7 @@ export default class extends Component {
 
   handleTimeButtons = (seconds) => {
      if (seconds === 'full') {
-        const { start, end } = this.edf.header;
+        const { start, end } = this.props.edf.header;
         this.updateDateWindow(+start, +end);
      }
      else {
@@ -133,9 +126,9 @@ export default class extends Component {
   }
 
   shouldBufferBeAppended = () => {
-    const { start, end } = this.state.edf.header;
+    const { start, end } = this.props.edf.header;
     const [windowLeft, windowRight] = this.state.dateWindow;
-    const [bufferLeft, bufferRight] = this.bufferRange;
+    const [bufferLeft, bufferRight] = this.state.bufferRange;
     const edfLength = end - start;
     const windowWidth = windowRight - windowLeft;
     const bufferWidth = bufferRight - bufferLeft;
@@ -148,7 +141,7 @@ export default class extends Component {
 
   updateDateWindow = async (newLeft, newRight) => {
     const [windowLeft, windowRight] = this.state.dateWindow;
-    const { start, end } = this.state.edf.header;
+    const { start, end } = this.props.edf.header;
 
     if (newLeft === windowLeft && newRight === windowRight) return; // nothing changed
 
@@ -181,9 +174,9 @@ export default class extends Component {
     if (!this.state.data) return; // no data yet
     if (this.isLoading) return; // can't load now anyway
 
-    const { start, end } = this.state.edf.header;
+    const { start, end } = this.props.edf.header;
     const [windowLeft, windowRight] = this.state.dateWindow;
-    const [bufferLeft, bufferRight] = this.bufferRange;
+    const [bufferLeft, bufferRight] = this.state.bufferRange;
     const windowWidth = windowRight - windowLeft;
 
     // prefer right side as it's the normal reading direction
@@ -199,7 +192,7 @@ export default class extends Component {
     if (this.isLoading) return; // the scroll event might trigger this too often
     this.isLoading = true;
 
-    const { start, end, numberOfSignals } = this.state.edf.header;
+    const { start, end, numberOfSignals } = this.props.edf.header;
     const left = Math.max(rawLeft, +start);
     const right = Math.min(rawRight, +end);
     const from = left - start; // getData needs relative positions
@@ -207,35 +200,35 @@ export default class extends Component {
     const shouldAppend = this.shouldBufferBeAppended();
     const loop = (callback) => { for (let i = 0; i < numberOfSignals; i++) callback(i); };
 
-    const newData = await this.state.edf.getData({ from, till, frequency: this.state.frequency });
-    let data = this.state.data;
+    let { data, bufferRange, frequency } = this.state;
+    const newData = await this.props.edf.getData({ from, till, frequency });
 
     if (!direction) { // overwrite data
       data = newData;
-      this.bufferRange = [left, right];
+      bufferRange = [left, right];
     }
     else if (direction === 'left') {
       if (shouldAppend) {
         loop(i => data[i] = [...newData[i], ...data[i]]);
-        this.bufferRange[0] = left;
+        bufferRange[0] = left;
       } else {
         loop(i => data[i] = [...newData[i], ...data[i].slice(0, -newData[i].length)]);
-        this.bufferRange = this.bufferRange.map(i => i - this.chunkWidth);
+        bufferRange = bufferRange.map(i => i - this.chunkWidth);
       }
     }
     else if (direction === 'right') {
       if (shouldAppend) {
         loop(i => data[i] = [...data[i], ...newData[i]]);
-        this.bufferRange[1] = right;
+        bufferRange[1] = right;
       } else {
         loop(i => data[i] = [...data[i].slice(newData[i].length), ...newData[i]]);
-        this.bufferRange = this.bufferRange.map(i => i + this.chunkWidth);
+        bufferRange = bufferRange.map(i => i + this.chunkWidth);
       }
     }
 
-    console.log('\tupdate | buffer is', { left: time(this.bufferRange[0]), right: time(this.bufferRange[1]) });
+    console.log('\tupdate | buffer is', { left: time(bufferRange[0]), right: time(bufferRange[1]) });
 
-    await this.setStateAsync({ data });
+    await this.setStateAsync({ data, bufferRange });
     this.isLoading = false;
     this.checkIfBufferIsSufficient();
   }
@@ -254,23 +247,26 @@ export default class extends Component {
   }
 
   renderGraphs = () => {
-    const { edf, dateWindow, frequency, data = [] } = this.state;
+    const { dateWindow, frequency, data = [] } = this.state;
+    const header = this.props.edf.header;
+    const artifacts = _.get(this.props, 'artifacts.data', {});
 
     return [
       <Range
         key="range"
-        start={this.state.edf.header.start}
-        end={this.state.edf.header.end}
+        start={header.start}
+        end={header.end}
         dateWindow={this.state.dateWindow}
         onChange={this.updateDateWindow}
       />,
       <div key="graphs" className="graphs">
-        {edf.header.channels.map((channel, index) =>
+        {header.channels.map((channel, index) =>
           <Graph
             key={`${channel.label}-${index}`}
             channel={channel}
             frequency={frequency}
             data={data[index]}
+            artifacts={artifacts[channel.label]}
             dateWindow={dateWindow}
             onChange={this.updateDateWindow}
           />
@@ -282,7 +278,7 @@ export default class extends Component {
   render() {
     return (
       <div className="main" ref={el => this.container = el}>
-        {this.state.edf
+        {this.props.edf
           ? this.renderGraphs()
           : <h1 className="loading">Loading EDF file</h1>
         }
