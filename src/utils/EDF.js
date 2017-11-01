@@ -43,244 +43,249 @@ const SAMPLE_SIZE = 2;
 
 export default class EDF {
 
-   constructor(file) {
-      if (!file) throw new Error('No EDF file reference given');
+  header = {
+    version: null,
+    patientIdentification: null,
+    recordIdentification: null,
+    startDate: null,
+    startTime: null,
+    recordHeaderByteSize: null,
+    reserved: null, // "EDF+C" if recording is uninterrupted, "EDF+D" if interrupted
+    numberOfDataRecords: null,
+    recordDurationTime: null, // duration of records in seconds
+    numberOfSignals: null, // number of multible signals in a record / number of channels
+    channels: [], // data specific for every channel
+  };
+  didReadHeader = false;
 
-      this.setResource(file);
-      this.didReadHeader = false;
-      this.header = {
-         version: null,
-         patientIdentification: null,
-         recordIdentification: null,
-         startDate: null,
-         startTime: null,
-         recordHeaderByteSize: null,
-         reserved: null, // "EDF+C" if recording is uninterrupted, "EDF+D" if interrupted
-         numberOfDataRecords: null,
-         recordDurationTime: null, // duration of records in seconds
-         numberOfSignals: null, // number of multible signals in a record / number of channels
-         channels: [], // data specific for every channel
-      };
-   }
+  constructor(file) {
+    if (!file) throw new Error('No EDF file reference given');
+    this.setResource(file);
+  }
 
-   setResource(file) {
-      if (typeof file.read === 'function') {
-         this.file = file;
-      }
-      else if (typeof file === 'string') {
-         this.file = new WebResource(file);
-      }
-      else if (file instanceof File) {
-         this.file = new FileResource(file);
-      }
-      else {
-         throw new Error('File type not supported');
-      }
-   }
+  setResource(file) {
+    if (typeof file.read === 'function') {
+      this.filename = file.filename;
+      this.file = file;
+    }
+    else if (typeof file === 'string') {
+      this.filename = file;
+      this.file = new WebResource(file);
+    }
+    else if (file instanceof File) {
+      this.filename = file.name;
+      this.file = new FileResource(file);
+    }
+    else {
+      throw new Error('File type not supported');
+    }
+  }
 
-   async readHeader() {
+  async readHeader() {
+    if (!this.didReadHeader) {
       await this.readStaticHeader();
       await this.readDynamicHeader();
       this.didReadHeader = true;
-      return this.header;
-   }
+    }
+    return this.header;
+  }
 
-   async readStaticHeader() {
-      const header = this.header;
-      const options = {
-         from: 0,
-         till: STATIC_HEADER_SIZE,
-      };
+  async readStaticHeader() {
+    const header = this.header;
+    const options = {
+      from: 0,
+      till: STATIC_HEADER_SIZE,
+    };
 
-      const result = await this.file.read(options);
+    const result = await this.file.read(options);
 
-      header.version = +result.slice(0, 8);
-      header.patientIdentification = result.slice(8, 88).trim();
-      header.recordIdentification = result.slice(88, 168).trim();
-      header.startDate = result.slice(168, 176).trim();
-      header.startTime = result.slice(176, 184).trim();
-      header.recordHeaderByteSize = +result.slice(184, 192);
-      header.reserved = result.slice(192, 236).trim(); // "EDF+C" if recording is uninterrupted, "EDF+D" if interrupted
-      header.numberOfDataRecords = +result.slice(236, 244);
-      header.recordDurationTime = +result.slice(244, 252);
-      header.numberOfSignals = +result.slice(252, 256);
+    header.version = +result.slice(0, 8);
+    header.patientIdentification = result.slice(8, 88).trim();
+    header.recordIdentification = result.slice(88, 168).trim();
+    header.startDate = result.slice(168, 176).trim();
+    header.startTime = result.slice(176, 184).trim();
+    header.recordHeaderByteSize = +result.slice(184, 192);
+    header.reserved = result.slice(192, 236).trim(); // "EDF+C" if recording is uninterrupted, "EDF+D" if interrupted
+    header.numberOfDataRecords = +result.slice(236, 244);
+    header.recordDurationTime = +result.slice(244, 252);
+    header.numberOfSignals = +result.slice(252, 256);
 
-      const d = header.startDate;
-      const t = header.startTime;
-      const year = +d.slice(6, 8);
-      header.start = new Date(
-         (year > 30 ? '19' : '20') + year, +d.slice(3, 5) - 1, d.slice(0, 2), // date
-         t.slice(0, 2), t.slice(3, 5), t.slice(6, 8), // time
-      );
-      header.end = new Date(+header.start + header.numberOfDataRecords * header.recordDurationTime * 1000);
-   }
+    const d = header.startDate;
+    const t = header.startTime;
+    const year = +d.slice(6, 8);
+    header.start = new Date(
+      (year > 30 ? '19' : '20') + year, +d.slice(3, 5) - 1, d.slice(0, 2), // date
+      t.slice(0, 2), t.slice(3, 5), t.slice(6, 8), // time
+    );
+    header.end = new Date(+header.start + header.numberOfDataRecords * header.recordDurationTime * 1000);
+  }
 
-   async readDynamicHeader() {
-      const header = this.header;
-      const numberOfSignals = header.numberOfSignals;
-      const channels = Array(numberOfSignals).fill(1).map(() => ({}));
-      const options = {
-         from: STATIC_HEADER_SIZE,
-         till: STATIC_HEADER_SIZE + numberOfSignals * 256,
-      };
-      const fields = [ /* eslint-disable no-multi-spaces, key-spacing */
-         { name: 'label',             size: 16                     }, // label for each signal
-         { name: 'transducerType',    size: 80                     },
-         { name: 'physicalDimension', size:  8                     }, // uV or degreeC
-         { name: 'physicalMinimum',   size:  8, filter: parseFloat },
-         { name: 'physicalMaximum',   size:  8, filter: parseFloat },
-         { name: 'digitalMinimum',    size:  8, filter: parseInt   },
-         { name: 'digitalMaximum',    size:  8, filter: parseInt   },
-         { name: 'preFiltering',      size: 80                     },
-         { name: 'numberOfSamples',   size:  8, filter: parseInt   }, // number of samples per signal in a record, samples are 2 byte integers. They are scaled later.
-      ]; /* eslint-enable no-multi-spaces, key-spacing */
+  async readDynamicHeader() {
+    const header = this.header;
+    const numberOfSignals = header.numberOfSignals;
+    const channels = Array(numberOfSignals).fill(1).map(() => ({}));
+    const options = {
+      from: STATIC_HEADER_SIZE,
+      till: STATIC_HEADER_SIZE + numberOfSignals * 256,
+    };
+    const fields = [ /* eslint-disable no-multi-spaces, key-spacing */
+      { name: 'label',             size: 16                     }, // label for each signal
+      { name: 'transducerType',    size: 80                     },
+      { name: 'physicalDimension', size:  8                     }, // uV or degreeC
+      { name: 'physicalMinimum',   size:  8, filter: parseFloat },
+      { name: 'physicalMaximum',   size:  8, filter: parseFloat },
+      { name: 'digitalMinimum',    size:  8, filter: parseInt   },
+      { name: 'digitalMaximum',    size:  8, filter: parseInt   },
+      { name: 'preFiltering',      size: 80                     },
+      { name: 'numberOfSamples',  size:  8,  filter: parseInt   }, // number of samples per signal in a record, samples are 2 byte integers. They are scaled later.
+    ]; /* eslint-enable no-multi-spaces, key-spacing */
 
-      const result = await this.file.read(options);
-      let offset = 0;
+    const result = await this.file.read(options);
+    let offset = 0;
 
-      fields.forEach(({ name, size, filter = x => x }) => {
-         for (let i = 0; i < numberOfSignals; i++) {
-            const value = result.slice(offset, offset + size).trim();
-            channels[i][name] = filter(value);
-            offset += size;
-         }
-      });
-
-      header.channels = channels;
-      header.recordIndicies = [];
-      // header.recordSampleIndicies = [0]; // maybe nice to have but not used
-      header.recordSize = channels.reduce((sum, channel) => {
-         header.recordIndicies.push(sum);
-         // header.recordSampleIndicies.push(previous / SAMPLE_SIZE);
-         return sum + channel.numberOfSamples;
-      }, 0);
-      header.recordSampleSize = header.recordSize / SAMPLE_SIZE;
-   }
-
-   async read(fromMs, tillMs) {
-      const header = this.header;
-      // Map timestamps to records
-      const duration = header.recordDurationTime * 1000;
-      const fromBlock = Math.floor(fromMs / duration);
-      const tillBlock = Math.ceil(tillMs / duration);
-      const numberOfBlocks = tillBlock - fromBlock;
-      // TODO: Map records to indicies
-      const headerSize = STATIC_HEADER_SIZE + header.numberOfSignals * 256; // header.recordHeaderByteSize
-      const options = {
-         type: 'arraybuffer',
-         from: headerSize + header.recordSize * fromBlock * SAMPLE_SIZE,
-         till: headerSize + header.recordSize * tillBlock * SAMPLE_SIZE, // -1 ?
-      };
-
-      const result = await this.file.read(options);
-
-      // console.log('\t\tread', { fromMs, tillMs, fromBlock, tillBlock, fromByte: options.from, tillByte: options.till });
-      // console.log('EDF.js - read - byteLength', result.byteLength);
-
-      const data = [];
-      const rawData = new Int16Array(result);
-      let i;
-      let j;
-      let part;
-      let offset;
-
-      for (i = 0; i < header.numberOfSignals; i++) {
-         const numberOfSamples = header.channels[i].numberOfSamples;
-         data[i] = new Int16Array(numberOfBlocks * numberOfSamples);
-
-         for (j = 0; j < numberOfBlocks; j++) {
-            offset = header.recordIndicies[i] + (j * header.recordSize);
-            part = rawData.subarray(offset, offset + numberOfSamples);
-            // console.log('numberOfBlocks', i, j, offset, part);
-            data[i].set(part, numberOfSamples * j);
-         }
+    fields.forEach(({ name, size, filter = x => x }) => {
+      for (let i = 0; i < numberOfSignals; i++) {
+        const value = result.slice(offset, offset + size).trim();
+        channels[i][name] = filter(value);
+        offset += size;
       }
+    });
 
-      return data;
-   }
+    header.channels = channels;
+    header.recordIndicies = [];
+    // header.recordSampleIndicies = [0]; // maybe nice to have but not used
+    header.recordSize = channels.reduce((sum, channel) => {
+      header.recordIndicies.push(sum);
+      // header.recordSampleIndicies.push(previous / SAMPLE_SIZE);
+      return sum + channel.numberOfSamples;
+    }, 0);
+    header.recordSampleSize = header.recordSize / SAMPLE_SIZE;
+  }
+
+  async read(fromMs, tillMs) {
+    const header = this.header;
+    // Map timestamps to records
+    const duration = header.recordDurationTime * 1000;
+    const fromBlock = Math.floor(fromMs / duration);
+    const tillBlock = Math.ceil(tillMs / duration);
+    const numberOfBlocks = tillBlock - fromBlock;
+    // TODO: Map records to indicies
+    const headerSize = STATIC_HEADER_SIZE + header.numberOfSignals * 256; // header.recordHeaderByteSize
+    const options = {
+      type: 'arraybuffer',
+      from: headerSize + header.recordSize * fromBlock * SAMPLE_SIZE,
+      till: headerSize + header.recordSize * tillBlock * SAMPLE_SIZE, // -1 ?
+    };
+
+    const result = await this.file.read(options);
+
+    // console.log('\t\tread', { fromMs, tillMs, fromBlock, tillBlock, fromByte: options.from, tillByte: options.till });
+    // console.log('EDF.js - read - byteLength', result.byteLength);
+
+    const data = [];
+    const rawData = new Int16Array(result);
+    let i;
+    let j;
+    let part;
+    let offset;
+
+    for (i = 0; i < header.numberOfSignals; i++) {
+      const numberOfSamples = header.channels[i].numberOfSamples;
+      data[i] = new Int16Array(numberOfBlocks * numberOfSamples);
+
+      for (j = 0; j < numberOfBlocks; j++) {
+        offset = header.recordIndicies[i] + (j * header.recordSize);
+        part = rawData.subarray(offset, offset + numberOfSamples);
+        // console.log('numberOfBlocks', i, j, offset, part);
+        data[i].set(part, numberOfSamples * j);
+      }
+    }
+
+    return data;
+  }
 
 
-   // --------------------------------------------------
-   // Data Access
-   // --------------------------------------------------
+  // --------------------------------------------------
+  // Data Access
+  // --------------------------------------------------
 
 
-   /**
-    * Get Data for time interval
-    * @param  {int}      from     relative Position in milliseconds
-    * @param  {int}      till     relative Position in milliseconds
-    */
-   async getData(options = {}) {
-      if (!this.didReadHeader) await this.readHeader();
+  /**
+   * Get Data for time interval
+   * @param  {int}    from    relative Position in milliseconds
+   * @param  {int}    till    relative Position in milliseconds
+   */
+  async getData(options = {}) {
+    if (!this.didReadHeader) await this.readHeader();
 
-      const header = this.header;
-      const from = Math.max(options.from || 0, 0);
-      const till = Math.min(options.till || 0, header.numberOfDataRecords * header.recordDurationTime * 1000); // bis ende
+    const header = this.header;
+    const from = Math.max(options.from || 0, 0);
+    const till = Math.min(options.till || 0, header.numberOfDataRecords * header.recordDurationTime * 1000); // bis ende
 
-      if (till <= from) throw new Error('Bad interval');
+    if (till <= from) throw new Error('Bad interval');
 
-      console.time('\t\tLoad data ');
-      const data = await this.read(from, till);
-      console.timeEnd('\t\tLoad data ');
-      console.time('\t\tParse data');
+    console.time('\t\tLoad data ');
+    const data = await this.read(from, till);
+    console.timeEnd('\t\tLoad data ');
+    console.time('\t\tParse data');
 
-      const buffer = [];
+    const buffer = [];
 
-      for (let i = 0; i < data.length; i++) {
-         const channel = header.channels[i];
-         const physicalMinimum = channel.physicalMinimum;
-         const digitalMinimum = channel.digitalMinimum;
-         const physicalRange = channel.physicalMaximum - physicalMinimum + 1;
-         const digitalRange = channel.digitalMaximum - digitalMinimum + 1;
-         const yScale = physicalRange / digitalRange;
-         const xScale = 1000 * header.recordDurationTime / channel.numberOfSamples;
-         const decimation = options.frequency
-            ? (channel.numberOfSamples / header.recordDurationTime / options.frequency | 0) || 1
-            : 1;
-         const date = index => +header.start + from + index * xScale;
-         const getValue = index => (index - digitalMinimum) * yScale + physicalMinimum;
+    for (let i = 0; i < data.length; i++) {
+      const channel = header.channels[i];
+      const physicalMinimum = channel.physicalMinimum;
+      const digitalMinimum = channel.digitalMinimum;
+      const physicalRange = channel.physicalMaximum - physicalMinimum + 1;
+      const digitalRange = channel.digitalMaximum - digitalMinimum + 1;
+      const yScale = physicalRange / digitalRange;
+      const xScale = 1000 * header.recordDurationTime / channel.numberOfSamples;
+      const decimation = options.frequency
+        ? (channel.numberOfSamples / header.recordDurationTime / options.frequency | 0) || 1
+        : 1;
+      const date = index => +header.start + from + index * xScale;
+      const getValue = index => (index - digitalMinimum) * yScale + physicalMinimum;
 
-         // console.log('data', i, { length: data[i].length, decimation });
+      // console.log('data', i, { length: data[i].length, decimation });
 
-         buffer[i] = [];
+      buffer[i] = [];
 
-         if (decimation === 1) {
-            for (let j = 0; j < data[i].length; j++) {
-               buffer[i].push([
-                  /* X */ date(j),
-                  /* Y */ getValue(data[i][j]),
-                  /*   */ [], // empty min / max as there is no min / max
-               ]);
-            }
-         }
-         else {
-            let min;
-            let max;
-            let avg = 0; // TODO Median wäre besser als Average
+      if (decimation === 1) {
+        for (let j = 0; j < data[i].length; j++) {
+          buffer[i].push([
+            /* X */ date(j),
+            /* Y */ getValue(data[i][j]),
+            /*  */ [], // empty min / max as there is no min / max
+          ]);
+        }
+      }
+      else {
+        let min;
+        let max;
+        let avg = 0; // TODO Median wäre besser als Average
 
-            for (let j = 0; j < data[i].length; j++) {
-               const value = getValue(data[i][j]);
+        for (let j = 0; j < data[i].length; j++) {
+          const value = getValue(data[i][j]);
 
-               avg += value / decimation;
-               if (min === undefined || value < min) min = value;
-               if (max === undefined || value > max) max = value;
+          avg += value / decimation;
+          if (min === undefined || value < min) min = value;
+          if (max === undefined || value > max) max = value;
 
-               if (j === 0) {
-                  // initially we don't have enough data to show a range
-                  buffer[i].push([date(j), value, []]);
-               }
-               else if (j % decimation === 0) {
-                  buffer[i].push([date(j), avg, [min, max]]);
-                  min = undefined;
-                  max = undefined;
-                  avg = 0;
-               }
-            }
-         }
-      } // end loop
+          if (j === 0) {
+            // initially we don't have enough data to show a range
+            buffer[i].push([date(j), value, []]);
+          }
+          else if (j % decimation === 0) {
+            buffer[i].push([date(j), avg, [min, max]]);
+            min = undefined;
+            max = undefined;
+            avg = 0;
+          }
+        }
+      }
+    } // end loop
 
-      console.timeEnd('\t\tParse data');
-      return buffer;
-   }
+    console.timeEnd('\t\tParse data');
+    return buffer;
+  }
 
 }
