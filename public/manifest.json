@@ -3,9 +3,9 @@
   "name": "EDF-Viewer und Event-Editor für PSGs",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "256x256",
-      "type": "image/ico"
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
   "start_url": "./index.html",
