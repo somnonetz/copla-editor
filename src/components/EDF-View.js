@@ -95,27 +95,27 @@ export default class extends Component {
   }
 
   handleTimeButtons = (seconds) => {
-     if (seconds === 'full') {
-        const { start, end } = this.props.edf.header;
-        this.updateDateWindow(+start, +end);
-     }
-     else {
-        // TODO lieber "mittig" herauszoomen?
-        const [windowLeft] = this.state.dateWindow;
-        this.updateDateWindow(windowLeft, windowLeft + seconds * 1000);
-     }
+    if (seconds === 'full') {
+      const { start, end } = this.props.edf.header;
+      this.updateDateWindow(+start, +end);
+    }
+    else {
+      // TODO lieber "mittig" herauszoomen?
+      const [windowLeft] = this.state.dateWindow;
+      this.updateDateWindow(windowLeft, windowLeft + seconds * 1000);
+    }
   }
 
   moveLeft = () => {
-     const [windowLeft, windowRight] = this.state.dateWindow;
-     const windowWidth = windowRight - windowLeft;
-     this.updateDateWindow(windowLeft - windowWidth, windowRight - windowWidth);
+    const [windowLeft, windowRight] = this.state.dateWindow;
+    const windowWidth = windowRight - windowLeft;
+    this.updateDateWindow(windowLeft - windowWidth, windowRight - windowWidth);
   }
 
   moveRight = () => {
-     const [windowLeft, windowRight] = this.state.dateWindow;
-     const windowWidth = windowRight - windowLeft;
-     this.updateDateWindow(windowLeft + windowWidth, windowRight + windowWidth);
+    const [windowLeft, windowRight] = this.state.dateWindow;
+    const windowWidth = windowRight - windowLeft;
+    this.updateDateWindow(windowLeft + windowWidth, windowRight + windowWidth);
   }
 
   setFrequency = async () => {
@@ -166,7 +166,7 @@ export default class extends Component {
     }
     else { // zoomed
       await this.setFrequency();
-      this.loadData(newLeft, newRight)
+      this.loadData(newLeft, newRight);
     }
   }
 

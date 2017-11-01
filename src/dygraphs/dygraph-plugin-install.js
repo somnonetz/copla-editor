@@ -10,11 +10,11 @@
 // Axes, Legend and ChartLabels.
 
 Dygraph.PLUGINS.push(
-   Dygraph.Plugins.Legend,
-   Dygraph.Plugins.Axes,
-   Dygraph.Plugins.RangeSelector, // Has to be before ChartLabels so that its callbacks are called after ChartLabels' callbacks.
-   Dygraph.Plugins.ChartLabels,
-   Dygraph.Plugins.PlotBands,
-   Dygraph.Plugins.Annotations,
-   Dygraph.Plugins.Grid,
+  Dygraph.Plugins.Legend,
+  Dygraph.Plugins.Axes,
+  Dygraph.Plugins.RangeSelector, // Has to be before ChartLabels so that its callbacks are called after ChartLabels' callbacks.
+  Dygraph.Plugins.ChartLabels,
+  Dygraph.Plugins.PlotBands,
+  Dygraph.Plugins.Annotations,
+  Dygraph.Plugins.Grid,
 );

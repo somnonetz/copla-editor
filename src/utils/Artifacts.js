@@ -66,16 +66,16 @@ function parse(text) {
   const headerEnd = text.indexOf('\r\n\r\n');
 
   text
-   .slice(headerEnd)
-   .trim()
-   .split('\n')
-   .forEach((line) => {
-    if (!line.trim()) return;
-    const array = line.split('|').map(s => s.trim());
-    const [channel, time, epoch, name] = array;
-    if (!artifacts[channel]) artifacts[channel] = [];
-    artifacts[channel].push({ time, epoch, name });
-   });
+    .slice(headerEnd)
+    .trim()
+    .split('\n')
+    .forEach((line) => {
+      if (!line.trim()) return;
+      const array = line.split('|').map(s => s.trim());
+      const [channel, time, epoch, name] = array;
+      if (!artifacts[channel]) artifacts[channel] = [];
+      artifacts[channel].push({ time, epoch, name });
+    });
 
   return artifacts;
 }

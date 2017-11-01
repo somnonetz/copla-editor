@@ -26,78 +26,78 @@
  * @author konigsberg@google.com (Robert Konigsberg)
  */
 Dygraph.Plugins.Unzoom = (function () {
-   /**
+  /**
    * Create a new instance.
    *
    * @constructor
    */
-   class unzoom {
-      constructor() {
-         this.button_ = null;
+  class unzoom {
+    constructor() {
+      this.button_ = null;
 
-         // True when the mouse is over the canvas. Must be tracked
-         // because the unzoom button state can change even when the
-         // mouse-over state hasn't.
-         this.over_ = false;
+      // True when the mouse is over the canvas. Must be tracked
+      // because the unzoom button state can change even when the
+      // mouse-over state hasn't.
+      this.over_ = false;
+    }
+
+    toString() {
+      return 'Unzoom Plugin';
+    }
+
+    activate(g) {
+      return {
+        willDrawChart: this.willDrawChart,
+      };
+    }
+
+    willDrawChart(e) {
+      const g = e.dygraph;
+
+      if (this.button_ !== null) {
+        // short-circuit: show the button only when we're moused over, and zoomed in.
+        const showButton = g.isZoomed() && this.over_;
+        this.show(showButton);
+        return;
       }
 
-      toString() {
-         return 'Unzoom Plugin';
-      }
+      this.button_ = document.createElement('button');
+      this.button_.innerHTML = 'Reset Zoom';
+      this.button_.style.display = 'none';
+      this.button_.style.position = 'absolute';
+      const area = g.plotter_.area;
+      this.button_.style.top = `${area.y + 4}px`;
+      this.button_.style.left = `${area.x + 4}px`;
+      this.button_.style.zIndex = 11;
+      const parent = g.graphDiv;
+      parent.insertBefore(this.button_, parent.firstChild);
 
-      activate(g) {
-         return {
-            willDrawChart: this.willDrawChart,
-         };
-      }
+      const self = this;
+      this.button_.onclick = function () {
+        g.resetZoom();
+      };
 
-      willDrawChart(e) {
-         const g = e.dygraph;
+      g.addAndTrackEvent(parent, 'mouseover', () => {
+        if (g.isZoomed()) {
+          self.show(true);
+        }
+        self.over_ = true;
+      });
 
-         if (this.button_ !== null) {
-         // short-circuit: show the button only when we're moused over, and zoomed in.
-            const showButton = g.isZoomed() && this.over_;
-            this.show(showButton);
-            return;
-         }
+      g.addAndTrackEvent(parent, 'mouseout', () => {
+        self.show(false);
+        self.over_ = false;
+      });
+    }
 
-         this.button_ = document.createElement('button');
-         this.button_.innerHTML = 'Reset Zoom';
-         this.button_.style.display = 'none';
-         this.button_.style.position = 'absolute';
-         const area = g.plotter_.area;
-         this.button_.style.top = `${area.y + 4}px`;
-         this.button_.style.left = `${area.x + 4}px`;
-         this.button_.style.zIndex = 11;
-         const parent = g.graphDiv;
-         parent.insertBefore(this.button_, parent.firstChild);
+    show(enabled) {
+      this.button_.style.display = enabled ? '' : 'none';
+    }
 
-         const self = this;
-         this.button_.onclick = function () {
-            g.resetZoom();
-         };
+    destroy() {
+      this.button_.parentElement.removeChild(this.button_);
+    }
+  }
 
-         g.addAndTrackEvent(parent, 'mouseover', () => {
-            if (g.isZoomed()) {
-               self.show(true);
-            }
-            self.over_ = true;
-         });
-
-         g.addAndTrackEvent(parent, 'mouseout', () => {
-            self.show(false);
-            self.over_ = false;
-         });
-      }
-
-      show(enabled) {
-         this.button_.style.display = enabled ? '' : 'none';
-      }
-
-      destroy() {
-         this.button_.parentElement.removeChild(this.button_);
-      }
-   }
-
-   return unzoom;
+  return unzoom;
 }());

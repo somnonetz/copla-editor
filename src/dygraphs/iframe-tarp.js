@@ -26,8 +26,8 @@
 import * as utils from './dygraph-utils';
 
 function IFrameTarp() {
-   /** @type {Array.<!HTMLDivElement>} */
-   this.tarps = [];
+  /** @type {Array.<!HTMLDivElement>} */
+  this.tarps = [];
 }
 
 /**
@@ -35,35 +35,35 @@ function IFrameTarp() {
  * transparent divs.
  */
 IFrameTarp.prototype.cover = function () {
-   const iframes = document.getElementsByTagName('iframe');
-   for (let i = 0; i < iframes.length; i++) {
-      const iframe = iframes[i];
-      const pos = utils.findPos(iframe);
-      const x = pos.x;
-      const y = pos.y;
-      const width = iframe.offsetWidth;
-      const height = iframe.offsetHeight;
+  const iframes = document.getElementsByTagName('iframe');
+  for (let i = 0; i < iframes.length; i++) {
+    const iframe = iframes[i];
+    const pos = utils.findPos(iframe);
+    const x = pos.x;
+    const y = pos.y;
+    const width = iframe.offsetWidth;
+    const height = iframe.offsetHeight;
 
-      const div = document.createElement('div');
-      div.style.position = 'absolute';
-      div.style.left = `${x}px`;
-      div.style.top = `${y}px`;
-      div.style.width = `${width}px`;
-      div.style.height = `${height}px`;
-      div.style.zIndex = 999;
-      document.body.appendChild(div);
-      this.tarps.push(div);
-   }
+    const div = document.createElement('div');
+    div.style.position = 'absolute';
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    div.style.width = `${width}px`;
+    div.style.height = `${height}px`;
+    div.style.zIndex = 999;
+    document.body.appendChild(div);
+    this.tarps.push(div);
+  }
 };
 
 /**
  * Remove all the iframe covers. You should call this in a mouseup handler.
  */
 IFrameTarp.prototype.uncover = function () {
-   for (let i = 0; i < this.tarps.length; i++) {
-      this.tarps[i].parentNode.removeChild(this.tarps[i]);
-   }
-   this.tarps = [];
+  for (let i = 0; i < this.tarps.length; i++) {
+    this.tarps[i].parentNode.removeChild(this.tarps[i]);
+  }
+  this.tarps = [];
 };
 
 export default IFrameTarp;

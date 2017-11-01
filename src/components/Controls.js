@@ -26,10 +26,10 @@ export default class extends Component {
         <Button action="moveLeft">←</Button>
         <Button action="moveRight">→</Button>
         <Button action="play">▶</Button>
-        {/*<Button action="time" seconds="10">10s</Button>*/}
+        {/* <Button action="time" seconds="10">10s</Button> */}
         <Button action="time" seconds="30">30s</Button>
-        {/*<Button action="time" seconds="60">1m</Button>*/}
-        {/*<Button action="time" seconds="120">2m</Button>*/}
+        {/* <Button action="time" seconds="60">1m</Button> */}
+        {/* <Button action="time" seconds="120">2m</Button> */}
         <Button action="time" seconds="300">5m</Button>
         <Button action="time" seconds="600">10m</Button>
         <Button action="time" seconds="full">voll</Button>

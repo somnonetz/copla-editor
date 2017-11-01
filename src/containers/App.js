@@ -16,7 +16,7 @@ export default class extends Component {
 
   async componentDidMount() {
     const params = queryString.parse(window.location.search);
-    const edf = params.edf
+    const edf = params.edf;
     const artifacts = params.artifacts;
     if (edf) {
       const bundle = await new Bundle({ edf, artifacts }).load;
@@ -54,7 +54,7 @@ export default class extends Component {
       <div className={wrapperClass}>
         <Dropzone
           onDrop={this.onEdfDrop}
-          multiple={true}
+          multiple
           disablePreview
           activeClassName="active"
           rejectClassName="rejected"
