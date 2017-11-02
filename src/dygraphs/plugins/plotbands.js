@@ -9,23 +9,25 @@ import * as utils from '../dygraph-utils';
  * @constructor
  */
 export default class PlotBands {
+
+  minWidth = 15; // minimal width a selection has to have to become a plotband
+
   constructor() {
     this.interactions = {
-      mousedown(event, g, context) {
-        context.initializeMouseDown(event, g, context);
-        DygraphInteraction.startZoom(event, g, context);
+      mousedown(event, graph, ctx) {
+        ctx.dragEndX = null; // is set on the first click and creates a ghost plotband
+        ctx.initializeMouseDown(event, graph, ctx);
       },
       mousemove: DygraphInteraction.moveZoom,
       mouseup: (event, graph, ctx) => {
         graph.clearZoomRect_();
         ctx.isZooming = false;
 
-        if (ctx.dragStartX === null || ctx.dragEndX === null) return;
-
         const width = Math.abs(ctx.dragEndX - ctx.dragStartX);
         const isHorizontal = ctx.dragDirection === utils.HORIZONTAL;
+        const isValid = ctx.dragStartX !== null && ctx.dragEndX !== null;
 
-        if (isHorizontal && width > 15) {
+        if (isValid && isHorizontal && width >= this.minWidth) {
           const plotArea = graph.getArea();
           const left = Math.max(Math.min(ctx.dragStartX, ctx.dragEndX), plotArea.x);
           const right = Math.min(Math.max(ctx.dragStartX, ctx.dragEndX), plotArea.x + plotArea.w);
@@ -35,7 +37,6 @@ export default class PlotBands {
             isEditing: true,
           });
           graph.draw();
-
           ctx.cancelNextDblclick = true;
         }
         ctx.dragStartX = null;
