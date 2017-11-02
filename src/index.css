@@ -15,3 +15,7 @@
 .site-footer {
   margin-top: 1rem;
 }
+
+.sidebar { z-index: 10; }
+.sidebar.open { padding-right: 1rem; }
+.sidebar-content { overflow: hidden; }

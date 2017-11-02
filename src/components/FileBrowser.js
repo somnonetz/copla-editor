@@ -7,32 +7,27 @@ export default class extends Component {
   static propTypes = {
     bundles: PropTypes.array,
     onSelect: PropTypes.func,
-    onToggle: PropTypes.func,
-    showSidebar: PropTypes.bool,
+    onUpload: PropTypes.func,
   }
 
   static defaultProps = {
     bundles: [],
     onSelect: {},
-    onToggle: {},
-    showSidebar: true,
+    onUpload: {},
   }
 
   render() {
-    const { bundles, onSelect, onToggle, showSidebar } = this.props;
-    const onClick = () => onToggle(!showSidebar);
+    const { bundles, onSelect, onUpload } = this.props;
     return (
       <div className="file-browser">
-        <button className="btn btn-default" onClick={onClick}>{showSidebar ? '◀' : '▶'}</button>
-        <div style={{ overflow: 'hidden' }}>
-          {bundles.map((bundle, i) =>
-            <Bundle
-              key={i}
-              bundle={bundle}
-              onSelect={onSelect}
-            />
-          )}
-        </div>
+        {bundles.map(bundle =>
+          <Bundle
+            key={bundle.edf.filename}
+            bundle={bundle}
+            onSelect={onSelect}
+            onUpload={onUpload}
+          />
+        )}
       </div>
     );
   }

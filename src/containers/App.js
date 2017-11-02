@@ -80,14 +80,18 @@ export default class extends Component {
     const sidebarWidth = this.state.showSidebar ? '15rem' : '0rem';
     return (
       <div style={{ display: 'flex', maxWidth: '100%' }}>
-        <div style={{ width: sidebarWidth, zIndex: 10, paddingRight: '1rem' }}>
+        <Sidebar
+          onToggle={this.handleSidebarToggle}
+          showSidebar={this.state.showSidebar}
+          width={sidebarWidth}
+        >
+          <h1>XNAT</h1>
           <FileBrowser
             bundles={this.state.bundles}
             onSelect={this.handleSelect}
-            onToggle={this.handleSidebarToggle}
-            showSidebar={this.state.showSidebar}
+            onUpload={this.handleUpload}
           />
-        </div>
+        </Sidebar>
         <div style={{ width: '100%', maxWidth: `calc(100% - ${sidebarWidth})` }}>
           {edf
             ? <EDF key={edf.filename} edf={edf} artifacts={artifacts} controls={proxy} />
