@@ -19,7 +19,7 @@ export default class extends Component {
 
   async componentWillMount() {
     await this.props.bundle.load;
-    const isLocal = false; // TODO resource checken nach `isLocal` und nur wenn ja upload button anzeigen
+    const isLocal = this.props.bundle.isLocal; // TODO resource checken nach `isLocal` und nur wenn ja upload button anzeigen
     this.setState({ isLoaded: true, isLocal });
   }
 

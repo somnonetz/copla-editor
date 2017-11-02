@@ -6,10 +6,12 @@ export default class {
   edf = null
   artifacts = null
   load = null
+  isLocal = null
 
   constructor({ edf, artifacts }) {
     this.setEDF(edf);
     this.setArtifact(artifacts);
+    this.isLocal = this.edf && this.edf.file.isLocal;
     this.load = Promise.all([
       this.edf ? this.edf.readHeader() : null,
       this.artifacts ? this.artifacts.load() : null,
