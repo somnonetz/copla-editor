@@ -200,8 +200,8 @@ export default class extends Component {
     const shouldAppend = this.shouldBufferBeAppended();
     const loop = (callback) => { for (let i = 0; i < numberOfSignals; i++) callback(i); };
 
-    let { data, bufferRange, frequency } = this.state;
-    const newData = await this.props.edf.getData({ from, till, frequency });
+    let { data, bufferRange } = this.state;
+    const newData = await this.props.edf.getData({ from, till, frequency: this.state.frequency });
 
     if (!direction) { // overwrite data
       data = newData;
@@ -249,7 +249,7 @@ export default class extends Component {
   renderGraphs = () => {
     const { dateWindow, frequency, data = [] } = this.state;
     const header = this.props.edf.header;
-    const artifacts = _.get(this.props, 'artifacts.data', {});
+    const artifacts = _.get(this.props.artifacts, 'data', {});
 
     return [
       <Range
