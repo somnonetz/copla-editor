@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import queryString from 'query-string';
-import EDF from 'components/EDF-View';
-import Controls from 'components/Controls';
-import FileBrowser from 'components/FileBrowser';
-import Bundle from 'utils/ResourceBundle';
+import EDF from '../components/EDF-View';
+import Controls from '../components/Controls';
+import Sidebar from '../components/Sidebar';
+import FileBrowser from '../components/FileBrowser';
+import Bundle from '../utils/ResourceBundle';
 
 export default class extends Component {
 

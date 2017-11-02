@@ -35,8 +35,8 @@ nr of samples[2] * integer : second signal
 nr of samples[ns] * integer : last signal
 */
 
-import FileResource from './FileResource';
-import WebResource from './WebResource';
+import FileResource from 'utils/FileResource';
+import WebResource from 'utils/WebResource';
 
 const STATIC_HEADER_SIZE = 256;
 const SAMPLE_SIZE = 2;

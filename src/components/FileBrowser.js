@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Bundle from './Bundle';
+import Bundle from 'components/Bundle';
 
 export default class extends Component {
 

@@ -1,6 +1,6 @@
-import FileResource from './FileResource';
-import WebResource from './WebResource';
 import _ from 'lodash';
+import FileResource from 'utils/FileResource';
+import WebResource from 'utils/WebResource';
 
 export default class {
 

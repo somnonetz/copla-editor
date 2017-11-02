@@ -1,5 +1,5 @@
-import EDF from './EDF';
-import Artifacts from './Artifacts';
+import EDF from 'utils/EDF';
+import Artifacts from 'utils/Artifacts';
 
 export default class {
 

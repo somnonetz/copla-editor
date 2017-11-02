@@ -58,6 +58,7 @@
 
     "import/no-extraneous-dependencies": "off",
     "import/extensions": "off",
+    "import/no-unresolved": "off",
 
     "max-len": "off",                // https://eslint.org/docs/rules/max-len
     "no-console": "off",             // https://eslint.org/docs/rules/no-console
