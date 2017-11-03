@@ -6,6 +6,7 @@ export default class {
 
   file = null;
   data = null;
+  types = {};
   size = undefined;
 
   constructor(file) {
@@ -33,7 +34,9 @@ export default class {
   async load() {
     if (!this.data) {
       const text = await this.file.read();
-      this.data = parse(text);
+      const [artifacts, types] = parse(text);
+      this.data = artifacts;
+      this.types = types;
       this.size = _.reduce(this.data, (sum, array) => sum + array.length, 0);
     }
     return this.data;
@@ -63,6 +66,7 @@ export default class {
 // EEG C4-A1| 21:55:41|    1|   Unusual Increase
 function parse(text) {
   const artifacts = {};
+  const types = {};
   const headerEnd = text.indexOf('\r\n\r\n');
 
   text
@@ -75,7 +79,8 @@ function parse(text) {
       const [channel, time, epoch, name] = array;
       if (!artifacts[channel]) artifacts[channel] = [];
       artifacts[channel].push({ time, epoch, name });
+      types[name] = (types[name] || 0) + 1;
     });
 
-  return artifacts;
+  return [artifacts, types];
 }

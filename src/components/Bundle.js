@@ -35,13 +35,14 @@ export default class extends Component {
       <div className="list-group m-t-1" key={edf.filename}>
         <button onClick={onSelect}>{edf.filename}</button>
         {artifacts &&
-          <div>
-            <p>{artifacts.filename}</p>
-            <p>{artifacts.size} Events</p>
-            {_.keys(artifacts.data).map(name =>
-              [<span className="tag">{name}</span>, ' ']
-            )}
-          </div>
+          [<div key="artifacts">
+            {artifacts.size} Events in <code>{artifacts.filename}</code>
+          </div>,
+          _.map(artifacts.types, (amount, name) =>
+            <button key={name} onClick={console.log} className="btn btn-link spread">
+              {name} <span className="tag tag-info">{amount}</span>
+            </button>
+          )]
         }
         {this.state.isLocal &&
           <button className="btn btn-primary" onClick={this.upload}>Upload</button>

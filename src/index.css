@@ -19,3 +19,10 @@
 .sidebar { z-index: 10; }
 .sidebar.open { padding-right: 1rem; }
 .sidebar-content { overflow: hidden; }
+
+
+.spread {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
