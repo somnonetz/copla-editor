@@ -66,6 +66,7 @@
     "no-plusplus": "off",            // https://eslint.org/docs/rules/no-plusplus
     "no-continue": "off",            // https://eslint.org/docs/rules/no-continue
     "padded-blocks": "off",          // https://eslint.org/docs/rules/padded-blocks
+    "no-await-in-loop": "off",       // https://eslint.org/docs/rules/no-await-in-loop
     "no-return-assign": "off",       // https://eslint.org/docs/rules/no-return-assign
     "no-mixed-operators": "off",     // https://eslint.org/docs/rules/no-mixed-operators
     "class-methods-use-this": "off", // https://eslint.org/docs/rules/class-methods-use-this
