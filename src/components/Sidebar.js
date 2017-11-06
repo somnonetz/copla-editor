@@ -14,7 +14,7 @@ export default class extends Component {
     children: null,
     onToggle: {},
     showSidebar: true,
-    width: '15rem',
+    width: '20rem',
   }
 
   render() {
@@ -24,7 +24,7 @@ export default class extends Component {
 
     return (
       <div className={className} style={{ width }}>
-        <button className="btn btn-default" onClick={onClick}>{showSidebar ? '◀' : '▶'}</button>
+        <button className="btn btn-default m-b-1" onClick={onClick}>{showSidebar ? '◀' : '▶'}</button>
         <div className="sidebar-content">
           {children}
         </div>

@@ -77,7 +77,7 @@ export default class extends Component {
 
   renderEditor(proxy) {
     const { edf, artifacts } = this.state.activeBundle || {};
-    const sidebarWidth = this.state.showSidebar ? '15rem' : '0rem';
+    const sidebarWidth = this.state.showSidebar ? '20rem' : '0rem';
     return (
       <div style={{ display: 'flex', maxWidth: '100%' }}>
         <Sidebar
