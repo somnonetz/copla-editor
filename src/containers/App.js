@@ -14,6 +14,7 @@ export default class extends Component {
     bundles: [],
     activeBundle: null,
     showSidebar: true,
+    loggedIn: false,
   }
 
   async componentDidMount() {
@@ -68,8 +69,24 @@ export default class extends Component {
     );
   }
 
+  handleLoginChange = (loggedIn) => {
+    this.setState({ loggedIn });
+  }
+
   handleSelect = (activeBundle) => {
     this.setState({ activeBundle });
+  }
+
+  handleUpload = (bundle) => {
+    bundle.uploadStatus = 1; // destined
+    this.setState({ bundles: this.state.bundles });
+    // pseudonymisierung: ja / nein?
+  }
+
+  handleNewData = async (files) => {
+    const bundle = await new Bundle(files).load;
+    const bundles = [...this.state.bundles, bundle];
+    return this.setState({ bundles });
   }
 
   handleSidebarToggle = (showSidebar) => {
@@ -79,6 +96,7 @@ export default class extends Component {
   renderEditor(proxy) {
     const { edf, artifacts } = this.state.activeBundle || {};
     const sidebarWidth = this.state.showSidebar ? '20rem' : '0rem';
+    const uploadBundles = this.state.bundles.filter(b => b.uploadStatus);
     return (
       <div style={{ display: 'flex', maxWidth: '100%' }}>
         <Sidebar
@@ -86,7 +104,11 @@ export default class extends Component {
           showSidebar={this.state.showSidebar}
           width={sidebarWidth}
         >
-          <h1>XNAT</h1>
+          <XNAT
+            onLoginChange={this.handleLoginChange}
+            onNewData={this.handleNewData}
+            bundles={uploadBundles}
+          />
           <FileBrowser
             bundles={this.state.bundles}
             canUpload={this.state.loggedIn}
