@@ -10,30 +10,36 @@ export default class {
   }
 
   read(options = {}) {
-    const type = options.type || 'text';
-    const from = options.from || 0;
-    let till = options.till || '';
-    const xhr = new window.XMLHttpRequest();
+    return new Promise((resolve, reject) => {
+      const type = options.type || 'text';
+      const from = options.from || 0;
+      let till = options.till || '';
+      const xhr = new XMLHttpRequest();
 
-    if (_.isNumber(till) && !(till % 2)) {
-      till--; // we need an equal number of bytes in the response
-    }
-
-    xhr.open('GET', this.url, true);
-    xhr.responseType = type;
-    xhr.setRequestHeader('Range', `bytes=${from}-${till}`); // http://stackoverflow.com/questions/3303029/http-range-header
-
-    const promise = new Promise((resolve) => {
+      xhr.open('GET', this.url, true);
+      xhr.withCredentials = true;
+      xhr.responseType = type;
+      xhr.onabort = reject;
+      xhr.onerror = reject;
       xhr.onload = () => {
         if (~~(xhr.status / 100) === 2) { // everything with 2xx is fine
           resolve(xhr.response);
         }
+        else {
+          reject(xhr.response);
+        }
       };
+
+      if (_.isNumber(till) && !(till % 2)) {
+        till--; // we need an equal number of bytes in the response
+      }
+      if (from && till) {
+        console.log('set request header', { from, till } );
+        xhr.setRequestHeader('Range', `bytes=${from}-${till}`); // http://stackoverflow.com/questions/3303029/http-range-header
+      }
+
+      xhr.send();
     });
-
-    xhr.send();
-
-    return promise;
   }
 
 }
