@@ -94,7 +94,7 @@ export default class extends Component {
         </Sidebar>
         <div style={{ width: '100%', maxWidth: `calc(100% - ${sidebarWidth})` }}>
           {edf
-            ? <EDF key={edf.filename} edf={edf} artifacts={artifacts} controls={proxy} />
+            ? <EDF key={edf.file.name} edf={edf} artifacts={artifacts} controls={proxy} />
             : <p className="alert alert-info">Select an EDF file to display it.</p>
           }
         </div>

@@ -5,7 +5,7 @@ export default class {
 
   constructor(url) {
     this.url = url;
-    this.filename = url.split('/').pop().split('#')[0].split('?')[0]; // https://stackoverflow.com/a/17143667
+    this.name = url.split('/').pop().split('#')[0].split('?')[0]; // https://stackoverflow.com/a/17143667
     this.isLocal = false;
   }
 

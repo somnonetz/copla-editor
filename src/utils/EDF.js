@@ -65,15 +65,12 @@ export default class EDF {
 
   setResource(file) {
     if (typeof file.read === 'function') {
-      this.filename = file.filename;
       this.file = file;
     }
     else if (typeof file === 'string') {
-      this.filename = file;
       this.file = new WebResource(file);
     }
     else if (file instanceof File) {
-      this.filename = file.name;
       this.file = new FileResource(file);
     }
     else {

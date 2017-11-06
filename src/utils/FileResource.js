@@ -2,7 +2,7 @@ export default class {
 
   constructor(file) {
     this.file = file;
-    this.filename = this.file.name;
+    this.name = this.file.name;
     this.isLocal = true;
     this.reader = new FileReader();
     this.typeMap = {

@@ -32,11 +32,11 @@ export default class extends Component {
     const onSelect = () => this.props.onSelect(this.props.bundle);
 
     return (
-      <div className="list-group m-t-1" key={edf.filename}>
-        <button onClick={onSelect}>{edf.filename}</button>
+      <div className="list-group m-t-1" key={edf.file.name}>
+        <button className="bg-muted" onClick={onSelect}>{edf.file.name}</button>
         {artifacts &&
           [<div key="artifacts">
-            {artifacts.size} Events in <code>{artifacts.filename}</code>
+            {artifacts.size.toLocaleString()} Events in <code>{artifacts.file.name}</code>
           </div>,
           _.map(artifacts.types, (amount, name) =>
             <button key={name} onClick={console.log} className="btn btn-link spread">
