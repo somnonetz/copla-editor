@@ -6,11 +6,15 @@ export default class extends Component {
 
   static propTypes = {
     bundle: PropTypes.object.isRequired,
+    canUpload: PropTypes.bool,
     onSelect: PropTypes.func,
+    onUpload: PropTypes.func,
   }
 
   static defaultProps = {
+    canUpload: false,
     onSelect: {},
+    onUpload: {},
   }
 
   state = {
@@ -23,13 +27,10 @@ export default class extends Component {
     this.setState({ isLoaded: true, isLocal });
   }
 
-  upload = () => {
-    console.log('upload');
-  }
-
   render() {
-    const { edf, artifacts } = this.props.bundle;
+    const { edf, artifacts, uploadStatus } = this.props.bundle;
     const onSelect = () => this.props.onSelect(this.props.bundle);
+    const onUpload = () => this.props.onUpload(this.props.bundle);
 
     return (
       <div className="list-group m-t-1" key={edf.file.name}>
@@ -44,8 +45,8 @@ export default class extends Component {
             </button>
           )]
         }
-        {this.state.isLocal &&
-          <button className="btn btn-primary" onClick={this.upload}>Upload</button>
+        {this.state.isLocal && this.props.canUpload && uploadStatus === 0 &&
+          <button className="btn btn-primary" onClick={onUpload}>Upload</button>
         }
       </div>
     );

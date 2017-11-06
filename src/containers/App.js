@@ -88,6 +88,7 @@ export default class extends Component {
           <h1>XNAT</h1>
           <FileBrowser
             bundles={this.state.bundles}
+            canUpload={this.state.loggedIn}
             onSelect={this.handleSelect}
             onUpload={this.handleUpload}
           />
