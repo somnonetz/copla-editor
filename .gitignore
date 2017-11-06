@@ -22,5 +22,5 @@ yarn-error.log*
 
 *.zip
 *.edf
-artifacts.txt
+*.txt
 src/config.js
