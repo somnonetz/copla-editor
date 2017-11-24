@@ -152,7 +152,7 @@ export default class extends Component {
         </main>
 
         <footer className="site-footer dashed-top">
-          Gitlab: <a href="https://git.tools.f4.htw-berlin.de/somnonetz/edf-viewer">somnonetz/edf-viewer</a>
+          Gitlab: <a href="https://git.tools.f4.htw-berlin.de/somnonetz/copla-editor">somnonetz/copla-editor</a>
         </footer>
       </div>
     );
