@@ -7,8 +7,8 @@
     "lodash": "^4.17.4",
     "prop-types": "^15.6.0",
     "query-string": "^5.0.1",
-    "react": "^16.1.1",
-    "react-dom": "^16.1.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
     "react-dropzone": "^4.2.3",
     "tawian-frontend": "^2.1.4",
     "typeface-cousine": "0.0.44"
