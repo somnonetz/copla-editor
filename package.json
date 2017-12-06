@@ -19,6 +19,6 @@
   "scripts": {
     "start": "NODE_PATH=src react-scripts start",
     "build": "NODE_PATH=src react-scripts build",
-    "deploy": "scp -r build/* xnatuser@xnat.f4.htw-berlin.de:~/edf-vis"
+    "deploy": "rsync --recursive --delete --stats --human-readable build/* xnat:~/copla-editor"
   }
 }
