@@ -33,7 +33,7 @@ export default class {
       if (_.isNumber(till) && !(till % 2)) {
         till--; // we need an equal number of bytes in the response
       }
-      if ((from || from === 0) && till) {
+      if (from >= 0 && till > 0) {
         console.log('set request header', { from, till } );
         xhr.setRequestHeader('Range', `bytes=${from}-${till}`); // http://stackoverflow.com/questions/3303029/http-range-header
       }
