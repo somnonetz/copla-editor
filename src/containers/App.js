@@ -17,6 +17,8 @@ export default class extends Component {
     loggedIn: false,
   }
 
+  proxy = { onClick() {} }
+
   async componentDidMount() {
     const params = queryString.parse(window.location.search);
     const edf = params.edf;
@@ -93,7 +95,7 @@ export default class extends Component {
     this.setState({ showSidebar });
   }
 
-  renderEditor(proxy) {
+  renderEditor() {
     const { edf, artifacts } = this.state.activeBundle || {};
     const sidebarWidth = this.state.showSidebar ? '20rem' : '0rem';
     const uploadBundles = this.state.bundles.filter(b => b.uploadStatus);
@@ -118,7 +120,7 @@ export default class extends Component {
         </Sidebar>
         <div style={{ width: '100%', maxWidth: `calc(100% - ${sidebarWidth})` }}>
           {edf
-            ? <EDF key={edf.file.name} edf={edf} artifacts={artifacts} controls={proxy} />
+            ? <EDF key={edf.file.name} edf={edf} artifacts={artifacts} controls={this.proxy} />
             : <p className="alert alert-info">Select an EDF file to display it.</p>
           }
         </div>
@@ -130,13 +132,12 @@ export default class extends Component {
     const hasBundle = this.state.bundles.length > 0;
     const hasActiveBundle = !!this.state.activeBundle;
     const containerClass = `container ${hasBundle ? 'full-width' : ''}`;
-    const proxy = { onClick() {} };
 
     return (
       <div className={containerClass}>
         <header className="site-header dashed-bottom">
           <a href="/" className="site-title">copla-editor</a>
-          {hasActiveBundle && <Controls proxy={proxy} />}
+          {hasActiveBundle && <Controls proxy={this.proxy} />}
           {hasBundle && this.renderDropzone('site-nav')}
         </header>
 
@@ -146,7 +147,7 @@ export default class extends Component {
           }
 
           {hasBundle
-            ? this.renderEditor(proxy)
+            ? this.renderEditor()
             : this.renderDropzone()
           }
         </main>
