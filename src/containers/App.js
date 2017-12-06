@@ -136,7 +136,7 @@ export default class extends Component {
     return (
       <div className={containerClass}>
         <header className="site-header dashed-bottom">
-          <a href="/" className="site-title">copla-editor</a>
+          <a href="." className="site-title">copla-editor</a>
           {hasActiveBundle && <Controls proxy={this.proxy} />}
           {hasBundle && this.renderDropzone('site-nav')}
         </header>
