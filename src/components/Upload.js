@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import Countdown from 'components/Countdown';
 import Experiment from 'xnat/Experiment';
+import { sleep } from 'utils/utils';
 import { host, defaultProject, defaultSubject } from 'config';
 
 const STATES = {
@@ -28,15 +30,7 @@ export default class extends Component {
   state = {
     error: null,
     progress: 0,
-    remaining: null,
     uploadStatus: STATES.DESTINED,
-  }
-
-  getRemaining = () => {
-    const { remaining } = this.state;
-    const minutes = Math.floor(remaining / 60).toString();
-    const seconds = (remaining % 60).toString();
-    return `${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}`;
   }
 
   updateStatus = (uploadStatus) => {
@@ -48,7 +42,6 @@ export default class extends Component {
     this.setState({
       error,
       progress: 0,
-      remaining: null,
       uploadStatus: error ? STATES.FAILED : STATES.DONE,
     });
   }
@@ -98,17 +91,11 @@ export default class extends Component {
 
   getResults = async (experiment) => {
     let reconstructions = [];
-    let remaining = 600; // 10 minutes
-    const sleep = s => new Promise(resolve => setTimeout(resolve, s * 1000));
 
-    do {
-      this.setState({ remaining }); // 10% head-start for the feelings
-      remaining -= 5;
+    while (reconstructions.length < 2 && this.state.uploadStatus < STATES.DONE) {
       await sleep(5);
       reconstructions = await experiment.getReconstructions();
-    } while (reconstructions.length < 2 && remaining > 0);
-
-    if (!remaining) return this.finish('Pipeline failed');
+    }
 
     // create new bundle with results
     const find = postfix => _.find(reconstructions, { ID: `psg_${postfix}` }) || {};
@@ -136,7 +123,7 @@ export default class extends Component {
       case STATES.UPLOADING:
         return (
           <Alert>
-            <span className="loading">Uploading</span>
+            <span>Uploading</span>
             <div className="progress-bar progress-info">
               <div style={{ width: progress }}>{progress}</div>
             </div>
@@ -147,7 +134,7 @@ export default class extends Component {
         return <Alert><span className="loading">Starting Analysis</span></Alert>;
 
       case STATES.POLLING:
-        return <Alert>Waiting {this.getRemaining()} for Results.</Alert>;
+        return <Alert>Waiting <Countdown delay={600} onTargetReached={() => this.finish('Pipeline failed')} /> for Results.</Alert>;
 
       case STATES.PREPARING:
         return <Alert><span className="loading">Preparing Results</span></Alert>;
