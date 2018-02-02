@@ -9,12 +9,12 @@
     "query-string": "^5.0.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-dropzone": "^4.2.3",
+    "react-dropzone": "^4.2.7",
     "tawian-frontend": "^2.1.4",
-    "typeface-cousine": "0.0.44"
+    "typeface-cousine": "0.0.54"
   },
   "devDependencies": {
-    "react-scripts": "^1.0.17"
+    "react-scripts": "^1.1.0"
   },
   "scripts": {
     "start": "NODE_PATH=src react-scripts start",
