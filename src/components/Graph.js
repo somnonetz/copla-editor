@@ -4,7 +4,7 @@ import Dygraph from '../dygraphs/dygraph';
 
 const blacklist = ['-'];
 
-export default class extends Component {
+export default class Graph extends Component {
 
   static propTypes = {
     channel: PropTypes.object.isRequired,

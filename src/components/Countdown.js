@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 
-export default class extends Component {
+export default class Countdown extends Component {
 
   static propTypes = {
     delay: PropTypes.number.isRequired,

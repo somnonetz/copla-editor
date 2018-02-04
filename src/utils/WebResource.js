@@ -1,7 +1,7 @@
 import _ from 'lodash';
 // TODO check https://github.com/hammerlab/pileup.js/blob/master/src/main/RemoteFile.js
 
-export default class {
+export default class WebResource {
 
   constructor(url) {
     this.url = url;

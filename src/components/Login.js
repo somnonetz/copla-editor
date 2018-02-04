@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 
 
-export default class extends Component {
+export default class Login extends Component {
 
   static propTypes = {
     onLogin: PropTypes.func.isRequired,

@@ -6,7 +6,7 @@ import Range from 'components/Range';
 
 const time = date => new Date(date).toLocaleTimeString().replace(' AM', '');
 
-export default class extends Component {
+export default class EdfView extends Component {
 
   static propTypes = {
     edf: PropTypes.object.isRequired,

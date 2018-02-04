@@ -16,7 +16,7 @@ const STATES = {
   FAILED: 7,
 };
 
-export default class extends Component {
+export default class Upload extends Component {
 
   static propTypes = {
     bundle: PropTypes.object.isRequired,

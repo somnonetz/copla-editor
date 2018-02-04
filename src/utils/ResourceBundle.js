@@ -1,7 +1,7 @@
 import EDF from 'utils/EDF';
 import Artifacts from 'utils/Artifacts';
 
-export default class {
+export default class ResourceBundle {
 
   edf = null
   artifacts = null

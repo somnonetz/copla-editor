@@ -2,7 +2,7 @@ import _ from 'lodash';
 import FileResource from 'utils/FileResource';
 import WebResource from 'utils/WebResource';
 
-export default class {
+export default class Artifacts {
 
   file = null;
   data = null;

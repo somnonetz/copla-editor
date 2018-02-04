@@ -1,4 +1,4 @@
-export default class {
+export default class FileResource {
 
   constructor(file) {
     this.file = file;

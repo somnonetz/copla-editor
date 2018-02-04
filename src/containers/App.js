@@ -8,7 +8,7 @@ import XNAT from 'components/Xnat';
 import FileBrowser from 'components/FileBrowser';
 import Bundle from 'utils/ResourceBundle';
 
-export default class extends Component {
+export default class App extends Component {
 
   state = {
     bundles: [],

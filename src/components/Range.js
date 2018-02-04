@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Dygraph from '../dygraphs/dygraph';
 
-export default class extends Component {
+export default class Range extends Component {
 
   static propTypes = {
     start: PropTypes.instanceOf(Date).isRequired,

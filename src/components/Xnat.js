@@ -6,7 +6,7 @@ import Upload from 'components/Upload';
 import XNAT from 'xnat/XNAT';
 import { host, autologin, credentials } from 'config';
 
-export default class extends Component {
+export default class XnatView extends Component {
 
   static propTypes = {
     onLoginChange: PropTypes.func,

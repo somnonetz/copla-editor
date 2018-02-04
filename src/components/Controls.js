@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-export default class extends Component {
+export default class Controls extends Component {
 
   static propTypes = {
     proxy: PropTypes.object.isRequired,
