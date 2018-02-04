@@ -22,21 +22,24 @@ export default class extends Component {
   }
 
   componentDidMount() {
-    this.timer = window.setInterval(() => this.forceUpdate(), this.props.interval);
+    this.timer = window.setInterval(this.setRemaining, this.props.interval);
   }
 
   componentWillUnmount() {
     window.clearInterval(this.timer);
   }
 
-  render() {
+  setRemaining = () => {
     const remaining = (this.state.targetTime - Date.now()) / 1000;
-
     if (remaining <= 0) this.onTargetReached();
+    else this.setState({ remaining });
+  }
 
-    const minutes = Math.floor(remaining / 60).toString();
-    const seconds = (remaining % 60).toFixed(0);
-    return `${minutes}:${seconds.padStart(2, '0')}`;
+  render() {
+    const minutes = (this.state.remaining / 60).toFixed(0);
+    const seconds = (this.state.remaining % 60).toFixed(0).padStart(2, '0');
+
+    return `${minutes}:${seconds}`;
   }
 
 }
