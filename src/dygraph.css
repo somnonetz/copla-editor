@@ -2,8 +2,26 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  margin-bottom: 10px;
   user-select: none;
+}
+.range .dygraph-rangesel-bgcanvas {
+  background-color: rgba(66, 139, 202, 0.5);
+}
+
+.range .dygraph-rangesel-zoomhandle {
+  top: calc(50% - 8px);
+}
+
+.hypnogram { overflow: hidden; }
+.hypnogram .dygraph-rangesel-fgcanvas { top: -2px; }
+.hypnogram .dygraph-rangesel-bgcanvas { background-color: white; }
+.hypnogram .dygraph-rangesel-zoomhandle { display: none; }
+
+.hypnogram .dygraph-axis-label {
+  width: 53px;
+  padding-top: 16px;
+  line-height: 17px;
+  text-align: right;
 }
 
 .graph-label {
@@ -129,14 +147,6 @@
 .dygraph-label-rotate-right {
   text-align: center;
   transform: rotate(-90deg);
-}
-
-.dygraph-rangesel-bgcanvas {
-  background-color: rgba(66, 139, 202, 0.5);
-}
-
-.dygraph-rangesel-zoomhandle {
-  top: calc(50% - 8px);
 }
 
 
