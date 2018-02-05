@@ -4,9 +4,9 @@
   "homepage": ".",
   "private": true,
   "dependencies": {
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.5",
     "prop-types": "^15.6.0",
-    "query-string": "^5.0.1",
+    "query-string": "^5.1.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-dropzone": "^4.2.7",
