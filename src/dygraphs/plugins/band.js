@@ -93,8 +93,9 @@ export default class Band {
     input.className = 'plotband-input';
     div.appendChild(input);
 
-    input.onkeyup = () => {
-      this.type = input.value.toUpperCase();
+    input.onkeydown = (e) => {
+      e.stopPropagation(); // so it does not interfer with e.g. the hypnogram
+      this.type = String.fromCharCode(e.keyCode).trim().toUpperCase();
       input.onblur();
     };
     input.onblur = () => {
