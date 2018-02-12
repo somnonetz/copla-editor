@@ -22,6 +22,7 @@ export default class Countdown extends Component {
   }
 
   componentDidMount() {
+    this.setRemaining();
     this.timer = window.setInterval(this.setRemaining, this.props.interval);
   }
 
@@ -36,8 +37,9 @@ export default class Countdown extends Component {
   }
 
   render() {
-    const minutes = (this.state.remaining / 60).toFixed(0);
-    const seconds = (this.state.remaining % 60).toFixed(0).padStart(2, '0');
+    const remaining = this.state.remaining | 0;
+    const minutes = (remaining / 60) | 0;
+    const seconds = (remaining % 60).toFixed(0).padStart(2, '0');
 
     return `${minutes}:${seconds}`;
   }
