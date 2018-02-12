@@ -134,7 +134,7 @@ export default class Upload extends Component {
         return <Alert><span className="loading">Starting Analysis</span></Alert>;
 
       case STATES.POLLING:
-        return <Alert>Waiting <Countdown delay={600} onTargetReached={() => this.finish('Pipeline failed')} /> for Results.</Alert>;
+        return <Alert>Waiting <Countdown seconds={600} onTargetReached={() => this.finish('Pipeline failed')} /> for Results.</Alert>;
 
       case STATES.PREPARING:
         return <Alert><span className="loading">Preparing Results</span></Alert>;

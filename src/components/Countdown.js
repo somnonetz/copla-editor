@@ -4,25 +4,25 @@ import PropTypes from 'prop-types';
 export default class Countdown extends Component {
 
   static propTypes = {
-    delay: PropTypes.number.isRequired,
+    seconds: PropTypes.number.isRequired,
     interval: PropTypes.number,
     onTargetReached: PropTypes.func,
   }
 
   static defaultProps = {
     interval: 1000,
-    onTargetReached: {},
+    onTargetReached() {},
   }
 
   constructor(props) {
     super(props);
     this.state = {
-      targetTime: Date.now() + this.props.delay * 1000,
+      targetTime: Date.now() + props.seconds * 1000,
+      remaining: props.seconds,
     };
   }
 
   componentDidMount() {
-    this.setRemaining();
     this.timer = window.setInterval(this.setRemaining, this.props.interval);
   }
 
@@ -32,7 +32,7 @@ export default class Countdown extends Component {
 
   setRemaining = () => {
     const remaining = (this.state.targetTime - Date.now()) / 1000;
-    if (remaining <= 0) this.onTargetReached();
+    if (remaining <= 0) this.props.onTargetReached();
     else this.setState({ remaining });
   }
 
