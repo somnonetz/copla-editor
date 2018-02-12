@@ -14,7 +14,7 @@
     "typeface-cousine": "0.0.54"
   },
   "devDependencies": {
-    "react-scripts": "^1.1.0"
+    "react-scripts": "^1.1.1"
   },
   "scripts": {
     "start": "NODE_PATH=src react-scripts start",
