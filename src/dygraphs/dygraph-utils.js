@@ -1069,7 +1069,7 @@ export function toRGB_(colorStr) {
 export function isCanvasSupported(opt_canvasElement) {
    try {
       const canvas = opt_canvasElement || document.createElement('canvas');
-      canvas.getContext('2d');
+      canvas.getContext('2d', { alpha: false });
    }
    catch (e) {
       return false;

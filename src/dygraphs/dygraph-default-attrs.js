@@ -85,7 +85,7 @@ const DEFAULT_ATTRS = {
   // The ordering here ensures that central lines always appear above any
   // fill bars/error bars.
   plotter: [
-    DygraphCanvasRenderer._fillPlotter,
+    // DygraphCanvasRenderer._fillPlotter, // not used
     DygraphCanvasRenderer._errorPlotter,
     DygraphCanvasRenderer._linePlotter,
   ],
@@ -114,16 +114,17 @@ const DEFAULT_ATTRS = {
       independentTicks: true,
       ticker: DygraphTickers.numericTicks,
     },
-    y2: {
-      axisLabelWidth: 50,
-      pixelsPerLabel: 30,
-      valueFormatter: utils.numberValueFormatter,
-      axisLabelFormatter: utils.numberAxisLabelFormatter,
-      drawAxis: true, // only applies when there are two axes of data.
-      drawGrid: false,
-      independentTicks: false,
-      ticker: DygraphTickers.numericTicks,
-    },
+    // not used
+    // y2: {
+    //   axisLabelWidth: 50,
+    //   pixelsPerLabel: 30,
+    //   valueFormatter: utils.numberValueFormatter,
+    //   axisLabelFormatter: utils.numberAxisLabelFormatter,
+    //   drawAxis: true, // only applies when there are two axes of data.
+    //   drawGrid: false,
+    //   independentTicks: false,
+    //   ticker: DygraphTickers.numericTicks,
+    // },
   },
 };
 

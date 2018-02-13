@@ -483,9 +483,10 @@ class DygraphCanvasRenderer {
       let prevY = NaN;
       let prevYs = [-1, -1];
       // should be same color as the lines but only 15% opaque.
-      const rgb = utils.toRGB_(color);
-      const err_color = `rgba(${rgb.r},${rgb.g},${rgb.b},${fillAlpha})`;
-      ctx.fillStyle = err_color;
+      // const rgb = utils.toRGB_(color);
+      // const err_color = `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+      // ctx.fillStyle = err_color;
+      ctx.fillStyle = color;
       ctx.beginPath();
 
       const isNullUndefinedOrNaN = x => x === null || x === undefined || isNaN(x);
