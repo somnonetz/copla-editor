@@ -58,16 +58,12 @@
   position: absolute;
   font-size: 14px;
   z-index: 10;
-  width: 250px;
   /* width: 250px; */
   /* labelsDivWidth */
   /*
   dygraphs determines these based on the presence of chart labels.
   It might make more sense to create a wrapper div around the chart proper.
-  top: 0px;
-  right: 2px;
   */
-  background: white;
   top: 0px;
   right: 0;
   padding: 2px 5px;

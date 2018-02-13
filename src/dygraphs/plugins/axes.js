@@ -127,7 +127,7 @@ class axes {
           * y: y2
           */
          const div = document.createElement('div');
-         div.className = `dygraph-axis-label dygraph-axis-label-${axis} ${prec_axis ? ` dygraph-axis-label-${prec_axis}` : ''}`;
+         div.className = `dygraph-axis-label dygraph-axis-label-${axis} ${prec_axis ? `dygraph-axis-label-${prec_axis}` : ''}`;
          div.innerText = txt;
          return div;
       };
