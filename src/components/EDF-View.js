@@ -251,6 +251,11 @@ export default class EdfView extends Component {
     const { dateWindow, frequency, data = [] } = this.state;
     const header = this.props.edf.header;
     const artifacts = _.get(this.props.artifacts, 'data', {});
+    const setGraphWrapper = el => this.graphWrapper = el;
+    const channels = header.channels.filter(c => c.label !== '-');
+    const height = this.graphWrapper
+      ? this.graphWrapper.offsetHeight / channels.length
+      : null;
 
     return [
       <Range
@@ -266,16 +271,17 @@ export default class EdfView extends Component {
         end={header.end}
         dateWindow={this.state.dateWindow}
       />,
-      <div key="graphs" className="graphs">
-        {header.channels.map((channel, index) =>
+      <div key="graphs" className="graphs" ref={setGraphWrapper}>
+        {height && channels.map((channel) =>
           <Graph
-            key={`${channel.label}-${index}`}
+            key={`${channel.label}-${channel.index}`}
             channel={channel}
             frequency={frequency}
-            data={data[index]}
+            data={data[channel.index]}
             artifacts={artifacts[channel.label]}
             dateWindow={dateWindow}
             onChange={this.updateDateWindow}
+            height={height}
           />
         )}
       </div>
@@ -284,7 +290,7 @@ export default class EdfView extends Component {
 
   render() {
     return (
-      <div className="main" ref={el => this.container = el}>
+      <div className="edf" ref={el => this.container = el}>
         {this.props.edf
           ? this.renderGraphs()
           : <h1 className="loading">Loading EDF file</h1>

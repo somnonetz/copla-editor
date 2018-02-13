@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Dygraph from '../dygraphs/dygraph';
 
-const blacklist = ['-'];
-
 export default class Graph extends Component {
 
   static propTypes = {
     channel: PropTypes.object.isRequired,
     frequency: PropTypes.number,
+    height: PropTypes.number,
     data: PropTypes.array,
     artifacts: PropTypes.array,
     dateWindow: PropTypes.array.isRequired,
@@ -16,17 +15,13 @@ export default class Graph extends Component {
   }
 
   static defaultProps = {
+    height: 60,
     data: null,
     frequency: 1,
     artifacts: null,
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      isHidden: blacklist.includes(props.channel.label),
-    };
-  }
+  minHeight = 60
 
   componentDidMount() {
     if (this.container) this.createGraph();
@@ -56,11 +51,11 @@ export default class Graph extends Component {
   }
 
   getOptions = () => {
-    const { channel, dateWindow } = this.props;
+    const { channel, dateWindow, height } = this.props;
     return {
       dateWindow,
       // TODO toggle dynamic range / physical range ???
-      height: 150,
+      height: Math.max(height, this.minHeight),
       valueRange: [
         channel.physicalMinimum - 1, // -1 and +1 so the graph doesn't touch the border and y-labels are correctly drawn
         channel.physicalMaximum + 1,
@@ -185,8 +180,6 @@ export default class Graph extends Component {
   }
 
   render() {
-    if (this.state.isHidden) return null;
-
     const ref = el => this.container = el;
     const style = { width: '100%' };
     return <div ref={ref} style={style} />;

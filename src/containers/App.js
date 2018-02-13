@@ -118,7 +118,7 @@ export default class App extends Component {
             onUpload={this.handleUpload}
           />
         </Sidebar>
-        <div style={{ width: '100%', maxWidth: `calc(100% - ${sidebarWidth})` }}>
+        <div className="edf-wrapper" style={{ maxWidth: `calc(100% - ${sidebarWidth})` }}>
           {edf
             ? <EDF key={edf.file.name} edf={edf} artifacts={artifacts} controls={this.proxy} />
             : <p className="alert alert-info">Select an EDF file to display it.</p>

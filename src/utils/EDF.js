@@ -120,7 +120,7 @@ export default class EDF {
   async readDynamicHeader() {
     const header = this.header;
     const numberOfSignals = header.numberOfSignals;
-    const channels = Array(numberOfSignals).fill(1).map(() => ({}));
+    const channels = Array(numberOfSignals).fill(1).map((v, index) => ({ index }));
     const options = {
       from: STATIC_HEADER_SIZE,
       till: STATIC_HEADER_SIZE + numberOfSignals * 256,
