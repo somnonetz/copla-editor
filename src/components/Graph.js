@@ -95,6 +95,8 @@ export default class Graph extends Component {
         wheel: this.handleScrollX,
       },
 
+      legendFormatter: this.legendFormatter,
+
       // TODO highlightCallback', 'unhighlightCallback' => punkte synchronisieren?
 
       // zoomCallback() { /* disable (set `valueRange` to initial value) or show reset button */ },
@@ -139,6 +141,11 @@ export default class Graph extends Component {
         isEditable: false,
       });
     });
+  }
+
+  legendFormatter = (data) => {
+    if (!data.series || !data.series[0]) return;
+    return (data.series[0].y || 0).toFixed(2);
   }
 
   handleScrollX = (event) => {
