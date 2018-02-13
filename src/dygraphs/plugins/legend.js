@@ -112,8 +112,8 @@ class Legend {
          }
 
          e.dygraph.graphDiv.appendChild(this.legend_div_);
-         this.legend_div_.style.left = `${yAxisLabelWidth + leftLegend}px`;
-         this.legend_div_.style.top = `${topLegend}px`;
+         // this.legend_div_.style.left = `${yAxisLabelWidth + leftLegend}px`;
+         // this.legend_div_.style.top = `${topLegend}px`;
       }
 
       const html = Legend.generateLegendHTML(e.dygraph, xValue, points, this.one_em_width_, row);
@@ -162,8 +162,8 @@ class Legend {
       e.dygraph.graphDiv.appendChild(this.legend_div_);
       const area = e.dygraph.getArea();
       const labelsDivWidth = this.legend_div_.offsetWidth;
-      this.legend_div_.style.left = `${area.x + area.w - labelsDivWidth - 1}px`;
-      this.legend_div_.style.top = `${area.y}px`;
+      // this.legend_div_.style.left = `${area.x + area.w - labelsDivWidth - 1}px`;
+      // this.legend_div_.style.top = `${area.y}px`;
    }
 
    /**
