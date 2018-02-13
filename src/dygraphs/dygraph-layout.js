@@ -298,19 +298,28 @@ class DygraphLayout {
       }
 
       this.yticks = [];
-      for (i = 0; i < this.yAxes_.length; i++) {
-         const axis = this.yAxes_[i];
-         for (let j = 0; j < axis.ticks.length; j++) {
-            tick = axis.ticks[j];
-            label = tick.label;
-            has_tick = !('label_v' in tick);
-            v = has_tick ? tick.v : tick.label_v;
-            pos = this.dygraph_.toPercentYCoord(v, i);
-            if ((pos > 0.0) && (pos <= 1.0)) {
-               this.yticks.push({ axis: i, pos, label, has_tick });
-            }
-         }
+
+      // we only need two ticks: min and max value
+      if (this.yAxes_[0].ticks.length) {
+        this.yticks = [
+          { axis: 0, pos: 0, label: this.yAxes_[0].maxyval - 1, has_tick: true },
+          { axis: 0, pos: 1, label: this.yAxes_[0].minyval + 1, has_tick: true },
+        ];
       }
+      // for (i = 0; i < this.yAxes_.length; i++) {
+      //    const axis = this.yAxes_[i];
+
+      //    for (let j = 0; j < axis.ticks.length; j++) {
+      //       tick = axis.ticks[j];
+      //       label = tick.label;
+      //       has_tick = !('label_v' in tick);
+      //       v = has_tick ? tick.v : tick.label_v;
+      //       pos = this.dygraph_.toPercentYCoord(v, i);
+      //       if ((pos > 0.0) && (pos <= 1.0)) {
+      //          this.yticks.push({ axis: i, pos, label, has_tick });
+      //       }
+      //    }
+      // }
    }
 
    _evaluateAnnotations() {

@@ -44,6 +44,13 @@
   background-color: #428bca;
 }
 
+.dygraph-ylabel,
+.dygraph-axis-label.dygraph-axis-label-y {
+  padding: 2px 0;
+  font-size: 75%;
+  color: #444;
+}
+
 /**
  * Default styles for the dygraphs charting library.
  */
