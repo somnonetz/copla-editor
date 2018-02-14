@@ -18,7 +18,12 @@
 
 .range .dygraph-rangesel-zoomhandle {
   top: calc(50% - 8px);
+  display: none;
 }
+
+.range:hover .dygraph-axis-label { display: none; }
+.range:hover .dygraph-rangesel-zoomhandle { display: block; }
+
 
 .hypnogram { overflow: hidden; }
 .hypnogram .dygraph-rangesel-fgcanvas { top: -2px; }

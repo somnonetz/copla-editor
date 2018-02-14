@@ -581,7 +581,7 @@ class rangeSelector {
 
       // Draw the mini plot.
       const ctx = this.bgcanvas_ctx_;
-      const margin = 0.5;
+      const margin = 0;
 
       const xExtremes = this.dygraph_.xAxisExtremes();
       const xRange = Math.max(xExtremes[1] - xExtremes[0], 1.e-30);
@@ -783,7 +783,7 @@ class rangeSelector {
    drawInteractiveLayer_() {
       const ctx = this.fgcanvas_ctx_;
       ctx.clearRect(0, 0, this.canvasRect_.w, this.canvasRect_.h);
-      const margin = 1;
+      const margin = -1;
       const width = this.canvasRect_.w - margin;
       const height = this.canvasRect_.h - margin;
       const zoomHandleStatus = this.getZoomHandleStatus_();
