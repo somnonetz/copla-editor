@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<title>canvas</title>
+<script src="test-basis.js"></script>
+<canvas id="canvas"></canvas>
+<script>
+function setupTest({ numberOfRows = 16, width = 1200, height = 800 }) {
+  const canvas = document.getElementById('canvas');
+  const context = canvas.getContext('2d');
+  const lineHeight = height / numberOfRows;
+  const data1 = Array.from(new Array(width)).map((v, i) => Math.abs(Math.sin(i)) * lineHeight);
+  const data2 = Array.from(new Array(width)).map(() => Math.random() * lineHeight);
+
+  canvas.width = width;
+  canvas.height = height;
+
+  window.draw = function draw() {
+    context.clearRect(0, 0, width, height);
+    context.beginPath();
+
+    for (let i = 0; i < numberOfRows; i++) {
+      const data = Math.random() > 0.5 ? data1 : data2;
+      const step = width / data.length;
+      let prev = data[0];
+      data.forEach((value, x) => {
+        const y = value + i * lineHeight;
+        context.moveTo(x, prev);
+        context.lineTo(x + step, y);
+        prev = y;
+      });
+    }
+    context.stroke();
+  };
+}
+</script>

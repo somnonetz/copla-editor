@@ -1,0 +1,12 @@
+{
+  "name": "edf-canvas-tests",
+  "description": "test canvas and svg for performance",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "bytes": "^3.1.0",
+    "chrome-trace": "^0.2.1",
+    "json-2-csv": "^3.4.1",
+    "puppeteer": "^1.12.2"
+  }
+}

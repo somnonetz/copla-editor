@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<title>parse-locally</title>
+<input type="file">
+<script src="FileResource.js"></script>
+<!-- <script src="EDF.js"></script> -->
+<script>
+/* global FileResource, EDF */
+/* eslint-disable no-unused-vars */
+const temp = {};
+const measurements = {};
+const round = num => Math.round(num * 1000) / 1000;
+
+window.measure = {
+  start(name) {
+    temp[name] = performance.now();
+  },
+  stop(name) {
+    measurements[name] = round(performance.now() - temp[name]);
+    delete temp[name];
+  },
+  log(name, value) {
+    measurements[name] = value;
+  },
+  get() {
+    return measurements;
+  },
+};
+
+if (window.navigator.userAgent !== 'puppeteer') {
+  const script = document.createElement('script');
+  script.src = 'EDF.js';
+  document.body.appendChild(script);
+
+  const input = document.querySelector('input');
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    const resource = new FileResource(file);
+    window.edf = new EDF(resource);
+    window.edf.readHeader();
+  });
+}
+</script>

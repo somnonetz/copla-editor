@@ -1,0 +1,28 @@
+.container.full-width {
+  max-width: none;
+}
+
+.site-header .dropzone {
+  height: auto;
+  margin-left: 1rem;
+}
+
+.site-main {
+  min-height: 100vh;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.site-footer {
+  margin-top: 1rem;
+}
+
+.sidebar { z-index: 10; }
+.sidebar.open { padding-right: 1rem; }
+.sidebar-content { overflow: hidden; }
+
+.spread {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}

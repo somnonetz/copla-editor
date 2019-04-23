@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<title>webworker</title>
+<input type="file">
+<script src="measure.js"></script>
+<script>
+/* eslint-disable no-unused-vars, prefer-destructuring */
+const worker = new Worker('worker.js');
+let fnName = '';
+let resolvePromise = null;
+
+worker.addEventListener('message', (message) => {
+  window.measure.stop(`callWorker-${fnName}`);
+  window.measure.start(`receive-${fnName}`);
+  const { data } = message;
+  window.measure.stop(`receive-${fnName}`);
+  resolvePromise(data);
+});
+
+window.callWorker = async function callWorker(fn, options) {
+  fnName = fn;
+  window.measure.start(`callWorker-${fnName}`);
+  worker.postMessage({ fnName, options });
+  return new Promise((resolve) => { resolvePromise = resolve; });
+};
+
+if (window.navigator.userAgent !== 'puppeteer') {
+  window.callWorker('import', { scriptUrl: 'EDF.js' });
+  const input = document.querySelector('input');
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    window.callWorker('init', { file });
+  });
+}
+</script>

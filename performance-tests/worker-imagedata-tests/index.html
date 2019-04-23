@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<title>worker-canvas</title>
+<canvas id="canvas"></canvas>
+<script>
+/* eslint-disable no-unused-vars */
+const width = 1200;
+const height = 800;
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
+const worker = new Worker('worker.js');
+let resolvePromise = null;
+
+canvas.width = width;
+canvas.height = height;
+
+worker.postMessage({ width, height });
+
+worker.onmessage = (message) => {
+  console.time('main-receive');
+  const imagedata = message.data.imageData;
+  console.timeEnd('main-receive');
+  console.time('main-putImageData');
+  context.putImageData(imagedata, 0, 0);
+  console.timeEnd('main-putImageData');
+  console.timeEnd('main-requestImage');
+  resolvePromise();
+};
+
+function requestImage() {
+  console.time('main-requestImage');
+  worker.postMessage({});
+  return new Promise((resolve) => { resolvePromise = resolve; });
+}
+</script>

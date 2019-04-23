@@ -1,0 +1,133 @@
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem;
+  background-color: #333;
+  color: #eee;
+}
+
+a,
+a:visited {
+  color: #eee;
+  text-decoration: none;
+}
+
+header > * { align-self: center; }
+
+@media screen and (max-width: 400px) {
+  .title { display: none; }
+}
+button {
+  border: 0;
+  color: #eee;
+  cursor: pointer;
+}
+
+a:hover,
+button:hover { box-shadow: 0 0 0 1px #eee inset; }
+
+hr {
+  border: 1px solid #ccc;
+  margin: 2rem 0;
+}
+
+#localVideo { display: none; }
+
+button,
+.rtc-connection > * {
+  display: inline-block;
+  margin-left: .5rem;
+  padding: .25rem .5rem;
+  border-radius: 3px;
+  background-color: #555;
+}
+.controls .active { background-color: #1f807f; }
+
+.defaultContent {
+  width: 30rem;
+  max-width: calc(100% - 4rem);
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 3px;
+  background-color: #eee;
+  text-align: center;
+}
+
+.connectForm input {
+  width: 5rem;
+  padding: .25rem .5rem;
+  border-radius: 3px;
+  border: 0;
+  letter-spacing: 3px;
+  text-align: center;
+}
+
+.pointer {
+  z-index: 9999;
+  position: absolute;
+  left: -10px;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  opacity: .75;
+  margin: 0;
+  border-radius: 50%;
+  background-color: red;
+  transform: translate3d(-100px, -100px, 0);
+}
+
+.infobox {
+  z-index: 10;
+  position: absolute;
+  top: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rem;
+  padding: 1rem;
+  max-width: calc(100% - 4rem);
+  min-height: calc(100vh - 8rem);
+  background: #eee;
+}
+
+.infobox .toggleInfobox {
+  position: absolute;
+  top: 1px;
+  right: .5rem;
+  background: none;
+  font-size: 32px;
+  color: #333;
+}
+
+.infobox table {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.infobox table.fixed { table-layout: fixed; }
+
+.infobox td {
+  padding: .5rem;
+  word-break: break-all;
+}
+
+.infobox tr:nth-child(odd) td {
+  background: #ddd;
+}
+
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 9rem;
+  padding: 1rem;
+  border: 2px dashed #ccc;
+  text-align: center;
+  cursor: pointer;
+  color: #555;
+}
+.dropzone.active   {
+  border-color: #bbb;
+  background-color: #ddd;
+}
+.dropzone.rejected { border-color: red; }

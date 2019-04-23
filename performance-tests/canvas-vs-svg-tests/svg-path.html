@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<title>svg-path-fixed</title>
+<script src="test-basis.js"></script>
+<style>
+  .line {
+    vector-effect: non-scaling-stroke;
+    fill: none;
+    stroke: black;
+    stroke-opacity: 1;
+    stroke-width: 1px;
+    opacity: 1;
+  }
+</style>
+<svg id="chart"></svg>
+<script>
+function setupTest({ numberOfRows = 16, width = 1200, height = 800 }) {
+  const chart = document.getElementById('chart');
+  chart.innerHTML = '<path class="line" />'.repeat(numberOfRows);
+  const lines = Array.from(chart.querySelectorAll('path'));
+  const lineHeight = height / numberOfRows;
+  const data1 = Array.from(new Array(width)).map((v, i) => Math.abs(Math.sin(i)) * lineHeight);
+  const data2 = Array.from(new Array(width)).map(() => Math.random() * lineHeight);
+
+  chart.setAttribute('width', width);
+  chart.setAttribute('height', height);
+
+  window.draw = function draw() {
+    lines.forEach((line, i) => {
+      const data = Math.random() > 0.5 ? data1 : data2;
+      const str = data.reduce((sum, value, x) => {
+        const y = value + i * lineHeight;
+        return sum + ' ' + x + ',' + y;
+      }, 'M');
+      line.setAttribute('d', str);
+    });
+  };
+}
+</script>

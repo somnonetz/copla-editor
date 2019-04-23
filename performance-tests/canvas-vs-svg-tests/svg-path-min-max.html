@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<title>svg-path-fixed</title>
+<script src="test-basis.js"></script>
+<style>
+  .path {
+    vector-effect: non-scaling-stroke;
+    fill: none;
+    stroke: black;
+    stroke-opacity: 1;
+    stroke-width: 1px;
+    opacity: 1;
+  }
+</style>
+<svg id="chart">
+  <path class="path" />
+</svg>
+<script>
+/* eslint-disable prefer-template, no-loop-func */
+function setupTest({ numberOfRows = 16, width = 1200, height = 800 }) {
+  const chart = document.getElementById('chart');
+  const path = chart.querySelector('path');
+  const lineHeight = height / numberOfRows;
+  const drift = () => Math.random() * lineHeight / 3;
+  const point = i => Math.abs(Math.sin(i / 10)) * lineHeight;
+  const range = i => [Math.max(point(i) - drift(), 0), Math.min(point(i) + drift(), lineHeight)];
+  const getData = offset => Array.from(new Array(width)).map((v, i) => range(i + offset));
+  const data1 = getData(0);
+  const data2 = getData(10);
+
+  chart.setAttribute('width', width);
+  chart.setAttribute('height', height);
+
+  window.draw = function draw() {
+    const stepWidth = width / data1.length;
+    let d = '';
+
+    for (let i = 0; i < numberOfRows; i++) {
+      const data = Math.random() > 0.5 ? data1 : data2;
+      data.forEach(([min, max], index) => {
+        const x = index * stepWidth;
+        const offset = i * lineHeight;
+        const move = 'M' + x + ',' + (min + offset);
+        const line = ' ' + x + ',' + (max + offset);
+        d += ' ' + move + line;
+      });
+    }
+
+    path.setAttribute('d', d);
+  };
+}
+</script>
