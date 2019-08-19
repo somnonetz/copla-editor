@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/accessible-emoji */
 import React, { Component } from 'react';
 import _ from 'lodash';
 import Emitter from 'wildemitter';
@@ -12,8 +13,7 @@ import WebRTCResource from './utils/WebRTCResource';
 import Pseudonyms from './utils/Pseudonyms';
 
 export default class App extends Component {
-
-  dateWindow = null
+  dateWindow = null;
 
   constructor(props) {
     super(props);
@@ -39,52 +39,78 @@ export default class App extends Component {
       this.setUpEDF(params.edf);
     }
 
-    emitter.on('l-connectionEstablished', (peer) => {
+    emitter.on('l-connectionEstablished', peer => {
       const { isHost, edf } = this.state;
       console.log('l-connectionEstablished', isHost, edf);
 
       if (isHost && edf) {
         const { name, size } = edf.file;
         const plotbands = []; // TODO set real plotbands
-        this.emitMessage('l-edfMetaData', { name, size, dateWindow: this.dateWindow, plotbands });
+        this.emitMessage('l-edfMetaData', {
+          name,
+          size,
+          dateWindow: this.dateWindow,
+          plotbands,
+        });
       }
 
       this.setState({ peer });
     });
 
     // `edfMetaData` may come in before our connection to the peer is stable (so we can send as well)
-    emitter.on('s-edfMetaData', ({ size, name, dateWindow /*, plotbands*/ }) => {
-      console.log('s-edfMetaData', name);
-      this.dateWindow = dateWindow;
+    emitter.on(
+      's-edfMetaData',
+      ({ size, name, dateWindow /*, plotbands*/ }) => {
+        console.log('s-edfMetaData', name);
+        this.dateWindow = dateWindow;
 
-      const onReady = (peer) => {
-        const resource = new WebRTCResource(peer, size, name);
-        this.setUpEDF(resource);
-      };
+        const onReady = peer => {
+          const resource = new WebRTCResource(peer, size, name);
+          this.setUpEDF(resource);
+        };
 
-      if (this.state.peer) onReady(this.state.peer);
-      else emitter.once('l-connectionEstablished', onReady);
-    });
+        if (this.state.peer) onReady(this.state.peer);
+        else emitter.once('l-connectionEstablished', onReady);
+      },
+    );
 
     emitter.on('l-edfStateChange', this.onEdfStateChange);
     emitter.on('l-band', this.emitMessage.bind(this, 'l-band'));
     this.emitMessage = _.debounce(this.emitMessage, 50); // mitigate loops and buffer fast movement
   }
 
-  setUpEDF = async (resource) => {
+  setUpEDF = async resource => {
     const edf = new EDF(resource);
     await edf.readHeader();
     this.setState({ edf });
-  }
+  };
 
   toggleInfobox = () => {
     const { isInfoboxVisible } = this.state;
     this.setState({ isInfoboxVisible: !isInfoboxVisible });
-  }
+  };
+
+  downloadEvents = () => {
+    this.state.emitter.emit('l-downloadEvents');
+  };
+
+  downloadPseudonyms = async () => {
+    const XLSX = await import('xlsx');
+    const header = ['Patient', 'Pseudonym', 'Dateien'];
+    const pseudonyms = _.map(
+      this.pseudonyms.getAll(),
+      ({ patient, pseudonym, files }) => [patient, pseudonym, files.join(', ')],
+    );
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([header, ...pseudonyms]);
+    const sheetName = 'Pseudonyme';
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, 'pseudonyms.xlsx', { compression: true });
+  };
 
   emitMessage = (type, data) => {
     this.state.emitter.emit('message', { type, data });
-  }
+  };
 
   onEdfStateChange = ({ prevState, currState }) => {
     if (`${prevState.dateWindow}` !== `${currState.dateWindow}`) {
@@ -94,13 +120,20 @@ export default class App extends Component {
     // if (prevState.frequency !== currState.frequency) {
     //   this.emitMessage('l-frequency', currState.frequency);
     // }
-  }
+  };
 
   renderContent() {
     const { edf, emitter } = this.state;
 
     if (edf) {
-      return <EDFView key={edf.file.name} edf={edf} dateWindow={this.dateWindow} emitter={emitter} />;
+      return (
+        <EDFView
+          key={edf.file.name}
+          edf={edf}
+          dateWindow={this.dateWindow}
+          emitter={emitter}
+        />
+      );
     }
 
     const onDrop = (files = []) => {
@@ -111,7 +144,13 @@ export default class App extends Component {
     return (
       <div className="defaultContent">
         <form className="connectForm" method="GET">
-          <input name="room" type="number" minLength="4" maxLength="4" placeholder="PIN" />
+          <input
+            name="room"
+            type="number"
+            minLength="4"
+            maxLength="4"
+            placeholder="PIN"
+          />
           <button type="submit">Connect</button>
         </form>
         <hr />
@@ -136,20 +175,48 @@ export default class App extends Component {
       <div className="wrapper">
         <header>
           <span className="title">SN-Vis</span>
-          {edf &&
+          {edf && (
             <nav>
               <Controls emitter={emitter} />
-              <button className="toggleInfobox" onClick={this.toggleInfobox}>ℹ️️</button>
+              <button
+                className="toggleInfobox"
+                onClick={this.toggleInfobox}
+                title="Zeige Dateiinfos"
+              >
+                ℹ️️
+              </button>
+              <button
+                className="downloadEvents"
+                onClick={this.downloadEvents}
+                title="Download Events"
+              >
+                🗒
+              </button>
+              <button
+                className="downloadPseudonyms"
+                onClick={this.downloadPseudonyms}
+                title="Download Pseudonyms"
+              >
+                👥
+              </button>
             </nav>
-          }
-          <RTCConnection isHost={isHost} edf={edf} emitter={emitter} room={room} pseudonyms={this.pseudonyms} />
+          )}
+          <RTCConnection
+            isHost={isHost}
+            edf={edf}
+            emitter={emitter}
+            room={room}
+            pseudonyms={this.pseudonyms}
+          />
         </header>
-        <main className="edf-wrapper">
-          {this.renderContent()}
-        </main>
-        {isInfoboxVisible &&
-          <EdfInfoBox edf={edf} pseudonyms={this.pseudonyms.getAll()} onClose={this.toggleInfobox} />
-        }
+        <main className="edf-wrapper">{this.renderContent()}</main>
+        {isInfoboxVisible && (
+          <EdfInfoBox
+            edf={edf}
+            pseudonyms={this.pseudonyms.getAll()}
+            onClose={this.toggleInfobox}
+          />
+        )}
       </div>
     );
   }

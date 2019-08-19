@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>sn-editor</title>
+    <style>
+      #localVideo,
+      #remoteVideo {
+        width: 0;
+        height: 0;
+        visibility: hidden;
+      }
+    </style>
+  </head>
 
-<head>
-   <meta charset="utf-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-   <meta name="theme-color" content="#000000">
-   <title>WebRTC-Test</title>
-</head>
-
-<body>
-   <div id="root"></div>
-   <video id="localVideo"></video>
-</body>
-
+  <body>
+    <div id="root"></div>
+    <div id="localVideo"></div>
+    <div id="remoteVideo"></div>
+  </body>
 </html>

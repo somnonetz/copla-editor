@@ -3,13 +3,25 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { formatSize } from '../utils/utils';
 
-const edfHeader = ['numberOfSignals', 'start', 'end', 'patientIdentification', 'recordIdentification',
-  'recordHeaderByteSize', 'numberOfDataRecords', 'recordDurationTime', 'recordSize', 'recordSampleSize'];
+const edfHeader = [
+  'numberOfSignals',
+  'start',
+  'end',
+  'patientIdentification',
+  'recordIdentification',
+  'recordHeaderByteSize',
+  'numberOfDataRecords',
+  'recordDurationTime',
+  'recordSize',
+  'recordSampleSize',
+];
 
 const EdfInfoBox = ({ edf, pseudonyms, onClose }) => (
   <div className="infobox">
-    <button className="toggleInfobox" onClick={onClose}>×</button>
-    {edf &&
+    <button className="toggleInfobox" onClick={onClose}>
+      ×
+    </button>
+    {edf && (
       <section>
         <h2>EDF file header informationen</h2>
         <table>
@@ -20,7 +32,12 @@ const EdfInfoBox = ({ edf, pseudonyms, onClose }) => (
             </tr>
           </thead>
           <tbody>
-            {edfHeader.map(key => <tr key={key}><td>{key}</td><td>{`${edf.header[key]}`}</td></tr>)}
+            {edfHeader.map(key => (
+              <tr key={key}>
+                <td>{key}</td>
+                <td>{`${edf.header[key]}`}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
@@ -36,20 +53,24 @@ const EdfInfoBox = ({ edf, pseudonyms, onClose }) => (
             </tr>
           </thead>
           <tbody>
-            {edf.header.channels.map((channel) =>
+            {edf.header.channels.map(channel => (
               <tr key={channel.index}>
                 <td>{channel.index + 1}</td>
                 <td>{channel.label}</td>
                 <td>{channel.physicalDimension}</td>
                 <td>{channel.numberOfSamples}</td>
-                <td>{channel.digitalMinimum} / {channel.digitalMaximum}</td>
-                <td>{channel.physicalMinimum} / {channel.physicalMaximum}</td>
+                <td>
+                  {channel.digitalMinimum} / {channel.digitalMaximum}
+                </td>
+                <td>
+                  {channel.physicalMinimum} / {channel.physicalMaximum}
+                </td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
       </section>
-    }
+    )}
 
     <h2>Pseudonyms</h2>
     {_.map(pseudonyms, ({ patient, pseudonym, files }) => (

@@ -3,21 +3,19 @@ import PropTypes from 'prop-types';
 import Dygraph from '../dygraphs/dygraph';
 
 export default class Range extends Component {
-
   static propTypes = {
     start: PropTypes.instanceOf(Date).isRequired,
     end: PropTypes.instanceOf(Date).isRequired,
     dateWindow: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
-  }
+  };
 
   componentDidMount() {
     const rangeHeight = this.container.offsetHeight;
     this.range = new Dygraph(
-      this.container, [
-        [this.props.start, 0],
-        [this.props.end, 0],
-      ], {
+      this.container,
+      [[this.props.start, 0], [this.props.end, 0]],
+      {
         dateWindow: this.props.dateWindow,
         xAxisHeight: rangeHeight,
         labels: ['Time', 'Value'],
@@ -44,16 +42,15 @@ export default class Range extends Component {
     // this.graph.updateOptions(updateAttrs);
   }
 
-  handleRangeMovement = (range) => {
+  handleRangeMovement = range => {
     if (!range.draw) return; // not yet ready
     const [newLeft, newRight] = range.dateWindow_;
     this.props.onChange(newLeft, newRight);
-  }
+  };
 
   render() {
-    const ref = el => this.container = el;
+    const ref = el => (this.container = el);
     const style = { height: 30, width: '100%' };
     return <div ref={ref} style={style} className="range" />;
   }
-
 }

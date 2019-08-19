@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 
 const Pointer = ({ position }) => {
   if (!position) return null;
-  const style = { transform: `translate3d(${position.absX}px, ${position.absY}px, 0)` };
+  const style = {
+    transform: `translate3d(${position.absX}px, ${position.absY}px, 0)`,
+  };
   return <span className="pointer" style={style} />;
 };
 

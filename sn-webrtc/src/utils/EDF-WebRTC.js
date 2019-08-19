@@ -1,14 +1,13 @@
 export default class EDFWebRTC {
-
   id = 0;
-  channel = 'edf'
-  connections = {}
+  channel = 'edf';
+  connections = {};
   header = null;
 
   constructor(webrtc) {
     this.webrtc = webrtc;
 
-    webrtc.on('channelMessage', (peer, channel, data = { }) => {
+    webrtc.on('channelMessage', (peer, channel, data = {}) => {
       console.log('channelMessage', peer, channel, data);
       const { id, payload } = data.payload;
 
@@ -37,11 +36,10 @@ export default class EDFWebRTC {
 
   send(type, data = {}) {
     const id = ++this.id;
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       console.log('EDFWebRTC send', id);
       this.connections[id] = resolve;
       this.webrtc.sendDirectlyToAll(this.channel, type, { id, ...data });
     });
   }
-
 }

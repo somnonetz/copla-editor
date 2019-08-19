@@ -3,7 +3,6 @@ import FileResource from './FileResource';
 import WebResource from './WebResource';
 
 export default class Artifacts {
-
   file = null;
   data = null;
   types = {};
@@ -16,14 +15,11 @@ export default class Artifacts {
   setResource(file) {
     if (typeof file.read === 'function') {
       this.file = file;
-    }
-    else if (typeof file === 'string') {
+    } else if (typeof file === 'string') {
       this.file = new WebResource(file);
-    }
-    else if (file instanceof File) {
+    } else if (file instanceof File) {
       this.file = new FileResource(file);
-    }
-    else {
+    } else {
       throw new Error('File type not supported');
     }
   }
@@ -43,9 +39,9 @@ export default class Artifacts {
     console.time('adjustArtifactsTime');
     const dateString = baseDate.toDateString();
 
-    _.each(this.data, (list) => {
+    _.each(this.data, list => {
       let lastItemTime = null;
-      list.forEach((artifact) => {
+      list.forEach(artifact => {
         const time = new Date(`${dateString} ${artifact.time}`);
 
         if (time < lastItemTime) {
@@ -57,7 +53,6 @@ export default class Artifacts {
     });
     console.timeEnd('adjustArtifactsTime');
   }
-
 }
 
 // EEG C4-A1| 21:55:41|    1|   Unusual Increase
@@ -70,7 +65,7 @@ function parse(text) {
     .slice(headerEnd)
     .trim()
     .split('\n')
-    .forEach((line) => {
+    .forEach(line => {
       if (!line.trim()) return;
       const array = line.split('|').map(s => s.trim());
       const [channel, time, epoch, name] = array;

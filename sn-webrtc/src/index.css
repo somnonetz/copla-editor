@@ -1,7 +1,7 @@
 header {
   display: flex;
   justify-content: space-between;
-  padding: .5rem;
+  padding: 0.5rem;
   background-color: #333;
   color: #eee;
 }
@@ -12,10 +12,14 @@ a:visited {
   text-decoration: none;
 }
 
-header > * { align-self: center; }
+header > * {
+  align-self: center;
+}
 
 @media screen and (max-width: 400px) {
-  .title { display: none; }
+  .title {
+    display: none;
+  }
 }
 button {
   border: 0;
@@ -24,24 +28,30 @@ button {
 }
 
 a:hover,
-button:hover { box-shadow: 0 0 0 1px #eee inset; }
+button:hover {
+  box-shadow: 0 0 0 1px #eee inset;
+}
 
 hr {
   border: 1px solid #ccc;
   margin: 2rem 0;
 }
 
-#localVideo { display: none; }
+#localVideo {
+  display: none;
+}
 
 button,
 .rtc-connection > * {
   display: inline-block;
-  margin-left: .5rem;
-  padding: .25rem .5rem;
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 3px;
   background-color: #555;
 }
-.controls .active { background-color: #1f807f; }
+.controls .active {
+  background-color: #1f807f;
+}
 
 .defaultContent {
   width: 30rem;
@@ -55,7 +65,7 @@ button,
 
 .connectForm input {
   width: 5rem;
-  padding: .25rem .5rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 3px;
   border: 0;
   letter-spacing: 3px;
@@ -69,7 +79,7 @@ button,
   top: -10px;
   width: 20px;
   height: 20px;
-  opacity: .75;
+  opacity: 0.75;
   margin: 0;
   border-radius: 50%;
   background-color: red;
@@ -92,7 +102,7 @@ button,
 .infobox .toggleInfobox {
   position: absolute;
   top: 1px;
-  right: .5rem;
+  right: 0.5rem;
   background: none;
   font-size: 32px;
   color: #333;
@@ -103,17 +113,18 @@ button,
   margin-bottom: 1rem;
 }
 
-.infobox table.fixed { table-layout: fixed; }
+.infobox table.fixed {
+  table-layout: fixed;
+}
 
 .infobox td {
-  padding: .5rem;
+  padding: 0.5rem;
   word-break: break-all;
 }
 
 .infobox tr:nth-child(odd) td {
   background: #ddd;
 }
-
 
 .dropzone {
   display: flex;
@@ -126,8 +137,10 @@ button,
   cursor: pointer;
   color: #555;
 }
-.dropzone.active   {
+.dropzone.active {
   border-color: #bbb;
   background-color: #ddd;
 }
-.dropzone.rejected { border-color: red; }
+.dropzone.rejected {
+  border-color: red;
+}

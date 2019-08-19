@@ -4,19 +4,21 @@ import _ from 'lodash';
 import Dygraph from '../dygraphs/dygraph';
 
 export default class Hypnogram extends Component {
-
   static propTypes = {
     start: PropTypes.instanceOf(Date).isRequired,
     end: PropTypes.instanceOf(Date).isRequired,
     dateWindow: PropTypes.array.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
 
     const { start, end } = this.props;
     const epochs = Math.floor((end - start) / 1000 / 30);
-    const data = _.range(epochs).map((ar, i) => [new Date(+start + i * 30 * 1000), null]);
+    const data = _.range(epochs).map((ar, i) => [
+      new Date(+start + i * 30 * 1000),
+      null,
+    ]);
     const stages = [[start, 5], ...data, [end, 1]];
 
     this.state = { stages };
@@ -41,46 +43,42 @@ export default class Hypnogram extends Component {
 
   setupGraph = () => {
     const rangeHeight = this.container.offsetHeight;
-    this.range = new Dygraph(
-      this.container,
-      this.state.stages,
-      {
-        dateWindow: this.props.dateWindow,
-        xAxisHeight: rangeHeight,
-        valueRange: [1, 5],
-        axes: {
-          x: { drawAxis: false },
-        },
-        showLabelsOnHighlight: false,
-        stepPlot: true,
-        includeZero: true,
-        connectSeparatedPoints: false,
-        showRangeSelector: true,
-        rangeSelectorHeight: rangeHeight,
-        rangeSelectorAlpha: 0,
-        rangeSelectorPlotFillGradientColor: 'white',
-        rangeSelectorForegroundStrokeColor: 'grey',
-        rangeSelectorBackgroundStrokeColor: 'white',
-        rangeSelectorPlotFillColor: 'white',
-        rangeSelectorPlotStrokeColor: 'black',
-        rangeSelectorForegroundLineWidth: 0,
+    this.range = new Dygraph(this.container, this.state.stages, {
+      dateWindow: this.props.dateWindow,
+      xAxisHeight: rangeHeight,
+      valueRange: [1, 5],
+      axes: {
+        x: { drawAxis: false },
       },
-    );
+      showLabelsOnHighlight: false,
+      stepPlot: true,
+      includeZero: true,
+      connectSeparatedPoints: false,
+      showRangeSelector: true,
+      rangeSelectorHeight: rangeHeight,
+      rangeSelectorAlpha: 0,
+      rangeSelectorPlotFillGradientColor: 'white',
+      rangeSelectorForegroundStrokeColor: 'grey',
+      rangeSelectorBackgroundStrokeColor: 'white',
+      rangeSelectorPlotFillColor: 'white',
+      rangeSelectorPlotStrokeColor: 'black',
+      rangeSelectorForegroundLineWidth: 0,
+    });
     this.range.name = 'Hypnogram'; // for debugging
     this.range.draw = this.range.drawGraph_.bind(this.range);
-  }
+  };
 
   attachHandlers = () => {
     window.addEventListener('keydown', this.handleKeydown);
-  }
+  };
 
   detachHandlers = () => {
     window.removeEventListener('keydown', this.handleKeydown);
-  }
+  };
 
-  handleKeydown = (e) => {
+  handleKeydown = e => {
     const keyMap = {
-       8: () => this.setStageForEpoch(null), // delete
+      8: () => this.setStageForEpoch(null), // delete
       27: () => this.setStageForEpoch(null), // escape
       49: () => this.setStageForEpoch(1),
       50: () => this.setStageForEpoch(2),
@@ -89,16 +87,16 @@ export default class Hypnogram extends Component {
       53: () => this.setStageForEpoch(5),
     };
     (keyMap[e.which || e.keyCode] || _.noop)();
-  }
+  };
 
   appendAxis = () => {
     const xAxis = document.createElement('div');
     xAxis.className = 'dygraph-axis-label';
     xAxis.innerHTML = 'W<br>N1<br>N2<br>N3<br>R';
     this.container.firstChild.appendChild(xAxis);
-  }
+  };
 
-  setStageForEpoch = (newStage) => {
+  setStageForEpoch = newStage => {
     const { stages } = this.state;
     const { start, dateWindow } = this.props;
     const epoch = Math.floor((dateWindow[1] - start) / 1000 / 30);
@@ -106,12 +104,11 @@ export default class Hypnogram extends Component {
     // const newStage = Math.min(Math.max(currentStage + stageDiff, 0), 5) || null;
     stages[epoch][1] = newStage;
     this.range.updateOptions({ file: stages });
-  }
+  };
 
   render() {
-    const ref = el => this.container = el;
+    const ref = el => (this.container = el);
     const style = { height: 100, width: '100%' };
     return <div ref={ref} style={style} className="hypnogram" />;
   }
-
 }

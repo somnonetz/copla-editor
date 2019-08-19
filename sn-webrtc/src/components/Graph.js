@@ -4,7 +4,6 @@ import Emitter from 'wildemitter';
 import Dygraph from '../dygraphs/dygraph';
 
 export default class Graph extends Component {
-
   static propTypes = {
     channel: PropTypes.object.isRequired,
     frequency: PropTypes.number,
@@ -14,7 +13,7 @@ export default class Graph extends Component {
     dateWindow: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
     emitter: PropTypes.object,
-  }
+  };
 
   static defaultProps = {
     height: 60,
@@ -22,9 +21,9 @@ export default class Graph extends Component {
     frequency: 1,
     artifacts: null,
     emitter: { on() {}, off() {} },
-  }
+  };
 
-  minHeight = 60
+  minHeight = 60;
 
   componentDidMount() {
     if (this.container) this.createGraph();
@@ -38,7 +37,10 @@ export default class Graph extends Component {
       this.redrawGraph();
     }
 
-    if (this.props.data !== prevProps.data || this.props.frequency !== prevProps.frequency) {
+    if (
+      this.props.data !== prevProps.data ||
+      this.props.frequency !== prevProps.frequency
+    ) {
       this.renderGraph();
       this.redrawGraph();
     }
@@ -100,19 +102,22 @@ export default class Graph extends Component {
       // zoomCallback() { /* disable (set `valueRange` to initial value) or show reset button */ },
       // disable via: Dygraph.prototype.doZoomY_ = (lowY, highY) => null;
     };
-  }
+  };
 
-  updateOptions = (options) => {
+  updateOptions = options => {
     if (!this.graph) return;
     this.graph.updateOptions(options);
     this.renderGraph();
     this.redrawGraph();
-  }
+  };
 
   createGraph = () => {
     const { channel, dateWindow } = this.props;
     const options = this.getOptions();
-    const value = [dateWindow[0], [channel.physicalMinimum, 0, channel.physicalMaximum]];
+    const value = [
+      dateWindow[0],
+      [channel.physicalMinimum, 0, channel.physicalMaximum],
+    ];
     const graph = new Dygraph(this.container, [value], options);
     graph.name = channel.label;
     graph.draw = graph.drawGraph_.bind(graph);
@@ -128,7 +133,7 @@ export default class Graph extends Component {
     span.className = 'graph-label';
     span.innerText = channel.standardLabel;
     this.container.append(span);
-  }
+  };
 
   addPlotbands(graph, artifacts) {
     if (!artifacts) return;
@@ -142,26 +147,27 @@ export default class Graph extends Component {
     });
   }
 
-  legendFormatter = (data) => {
+  legendFormatter = data => {
     if (!data.series || !data.series[0]) return;
     return (data.series[0].y || 0).toFixed(2);
-  }
+  };
 
-  handleScrollX = (event) => {
+  handleScrollX = event => {
     if (Math.abs(event.deltaX) < Math.abs(event.deltaY)) return;
 
     event.preventDefault();
 
-    const delta = (-event.wheelDeltaX || event.deltaX) * (100 / this.props.frequency);
+    const delta =
+      (-event.wheelDeltaX || event.deltaX) * (100 / this.props.frequency);
     const [windowLeft, windowRight] = this.props.dateWindow;
 
     this.props.onChange(windowLeft + delta, windowRight + delta);
-  }
+  };
 
-  attachPlotbandListeners = (graph) => {
+  attachPlotbandListeners = graph => {
     const { emitter } = this.props;
     const { name } = graph;
-    const handle = (type) => (band) => {
+    const handle = type => band => {
       const data = band.toJSON();
       emitter.emit('l-band', { type, name, data });
     };
@@ -173,7 +179,7 @@ export default class Graph extends Component {
     graph.on('bandRemoved', handle('removed'));
 
     emitter.on('s-band', this.handleBandChange);
-  }
+  };
 
   handleBandChange = ({ type, name, data }) => {
     if (this.graph.name !== name) return;
@@ -191,10 +197,10 @@ export default class Graph extends Component {
     }
 
     this.graph.draw();
-  }
+  };
 
   attachObserver = (graph, container) => {
-    const callback = (entries) => {
+    const callback = entries => {
       const isVisible = entries[0].isIntersecting;
 
       if (isVisible && this.props.data) {
@@ -206,22 +212,21 @@ export default class Graph extends Component {
     };
     this.observer = new IntersectionObserver(callback, { threshold: 0 });
     this.observer.observe(container);
-  }
+  };
 
   redrawGraph = () => {
     if (this.graph) this.graph.draw();
-  }
+  };
 
   renderGraph = () => {
     if (!this.graph || !this.props.data) return;
     this.graph.rolledSeries_[1] = this.props.data;
     this.graph.renderGraph_();
-  }
+  };
 
   render() {
-    const ref = el => this.container = el;
+    const ref = el => (this.container = el);
     const style = { width: '100%' };
     return <div ref={ref} style={style} />;
   }
-
 }

@@ -9,40 +9,44 @@ import Hypnogram from './Hypnogram';
 const time = date => new Date(date).toLocaleTimeString().replace(' AM', '');
 
 export default class EdfView extends Component {
-
   static propTypes = {
     edf: PropTypes.object.isRequired,
     artifacts: PropTypes.object,
     emitter: PropTypes.object,
     dateWindow: PropTypes.array,
-  }
+  };
 
   static defaultProps = {
     artifacts: {},
     emitter: { on() {}, off() {} },
     dateWindow: null,
-  }
+  };
 
   state = {
     dateWindow: [0, 0],
     frequency: 1,
     data: [],
     bufferRange: [0, 0],
-  }
+  };
 
-  initialWindowWidth = 30 * 1000
-  chunkWidth = 300 * 1000 // 5min / unabhängig von Frequenz, weil feste Datenmenge geladen wird, auch wenn danach Reduktion
-  isLoading = false
+  initialWindowWidth = 30 * 1000;
+  chunkWidth = 300 * 1000; // 5min / unabhängig von Frequenz, weil feste Datenmenge geladen wird, auch wenn danach Reduktion
+  isLoading = false;
+  graphs = {};
 
   constructor(props) {
     super(props);
-    this.setStateAsync = state => new Promise(resolve => this.setState(state, resolve));
+    this.setStateAsync = state =>
+      new Promise(resolve => this.setState(state, resolve));
     this.handleResize = _.debounce(this.setFrequency, 50);
   }
 
   async componentDidMount() {
     const header = await this.props.edf.readHeader();
-    const dateWindow = this.props.dateWindow || [+header.start, +header.start + this.initialWindowWidth];
+    const dateWindow = this.props.dateWindow || [
+      +header.start,
+      +header.start + this.initialWindowWidth,
+    ];
 
     this.attachHandlers();
 
@@ -55,7 +59,10 @@ export default class EdfView extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState !== this.state) {
-      this.props.emitter.emit('l-edfStateChange', { prevState, currState: this.state });
+      this.props.emitter.emit('l-edfStateChange', {
+        prevState,
+        currState: this.state,
+      });
     }
   }
 
@@ -67,21 +74,21 @@ export default class EdfView extends Component {
     this.props.emitter.on('*', this.handleEvent);
     window.addEventListener('keydown', this.handleKeydown);
     window.addEventListener('resize', this.handleResize);
-  }
+  };
 
   detachHandlers = () => {
     this.props.emitter.off('*', this.handleEvent);
     window.removeEventListener('keydown', this.handleKeydown);
     window.removeEventListener('resize', this.handleResize);
-  }
+  };
 
-  handleKeydown = (e) => {
+  handleKeydown = e => {
     const keyMap = {
       37: this.moveLeft,
       39: this.moveRight,
     };
     (keyMap[e.which || e.keyCode] || _.noop)();
-  }
+  };
 
   handleEvent = (type, data) => {
     switch (type) {
@@ -106,47 +113,69 @@ export default class EdfView extends Component {
       case 'l-download':
         this.triggerDownload();
         break;
-      default: break;
+      case 'l-downloadEvents':
+        this.triggerDownloadEvents();
+        break;
+      default:
+        break;
     }
-  }
+  };
 
   triggerDownload = async () => {
     const file = this.props.edf.file;
     const data = await file.read({ type: 'arraybuffer' });
     const blob = new Blob([new Uint16Array(data)]);
     FileSaver.saveAs(blob, file.name || 'download.edf');
-  }
+  };
 
-  handleTimeButtons = (seconds) => {
+  triggerDownloadEvents = async () => {
+    const XLSX = await import('xlsx');
+    const header = ['Channel', 'Type', 'Start', 'End'];
+    const events = _.flatMap(this.graphs, graph =>
+      graph.graph.bands.map(band => [
+        graph.props.channel.label,
+        band.type,
+        band.start,
+        band.end,
+      ]),
+    );
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([header, ...events]);
+    const sheetName = 'events';
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, 'events.xlsx', { compression: true });
+  };
+
+  handleTimeButtons = seconds => {
     if (seconds === 'full') {
       const { start, end } = this.props.edf.header;
       this.updateDateWindow(+start, +end);
-    }
-    else {
+    } else {
       // TODO lieber "mittig" herauszoomen?
       const [windowLeft] = this.state.dateWindow;
       this.updateDateWindow(windowLeft, windowLeft + seconds * 1000);
     }
-  }
+  };
 
   moveLeft = () => {
     const [windowLeft, windowRight] = this.state.dateWindow;
     const windowWidth = windowRight - windowLeft;
     this.updateDateWindow(windowLeft - windowWidth, windowRight - windowWidth);
-  }
+  };
 
   moveRight = () => {
     const [windowLeft, windowRight] = this.state.dateWindow;
     const windowWidth = windowRight - windowLeft;
     this.updateDateWindow(windowLeft + windowWidth, windowRight + windowWidth);
-  }
+  };
 
   setFrequency = async () => {
-    const windowWidth = (this.state.dateWindow[1] - this.state.dateWindow[0]) / 1000; // in seconds
+    const windowWidth =
+      (this.state.dateWindow[1] - this.state.dateWindow[0]) / 1000; // in seconds
     const graphWidth = this.container.offsetWidth - 85; // in pixel
     const frequency = graphWidth / windowWidth;
     this.setStateAsync({ frequency });
-  }
+  };
 
   shouldBufferBeAppended = () => {
     const { start, end } = this.props.edf.header;
@@ -160,7 +189,7 @@ export default class EdfView extends Component {
     const maxWidth = Math.min(minWidth, edfLength); // … but not more than the whole file
 
     return bufferWidth <= maxWidth;
-  }
+  };
 
   updateDateWindow = async (newLeft, newRight) => {
     const [windowLeft, windowRight] = this.state.dateWindow;
@@ -174,11 +203,9 @@ export default class EdfView extends Component {
 
     if (newLeft < start) {
       dateWindow = [+start, +start + newWidth];
-    }
-    else if (newRight > end) {
+    } else if (newRight > end) {
       dateWindow = [+end - newWidth, +end];
-    }
-    else {
+    } else {
       dateWindow = [newLeft, newRight];
     }
 
@@ -186,12 +213,12 @@ export default class EdfView extends Component {
 
     if (newWidth === windowWidth) {
       this.checkIfBufferIsSufficient();
-    }
-    else { // zoomed
+    } else {
+      // zoomed
       await this.setFrequency();
       this.loadData(newLeft, newRight);
     }
-  }
+  };
 
   checkIfBufferIsSufficient = () => {
     if (!this.state.data) return; // no data yet
@@ -203,13 +230,12 @@ export default class EdfView extends Component {
     const windowWidth = windowRight - windowLeft;
 
     // prefer right side as it's the normal reading direction
-    if (bufferRight < (windowRight + windowWidth) && bufferRight < end) {
+    if (bufferRight < windowRight + windowWidth && bufferRight < end) {
       this.loadData(bufferRight + 1, bufferRight + this.chunkWidth, 'right');
-    }
-    else if (bufferLeft > (windowLeft - windowWidth) && bufferLeft > start) {
+    } else if (bufferLeft > windowLeft - windowWidth && bufferLeft > start) {
       this.loadData(bufferLeft - this.chunkWidth, bufferLeft - 1, 'left');
     }
-  }
+  };
 
   loadData = async (rawLeft, rawRight, direction) => {
     if (this.isLoading) return; // the scroll event might trigger this too often
@@ -221,45 +247,61 @@ export default class EdfView extends Component {
     const from = left - start; // getData needs relative positions
     const till = right - start;
     const shouldAppend = this.shouldBufferBeAppended();
-    const loop = (callback) => { for (let i = 0; i < numberOfSignals; i++) callback(i); };
+    const loop = callback => {
+      for (let i = 0; i < numberOfSignals; i++) callback(i);
+    };
 
     let { data, bufferRange } = this.state;
-    const newData = await this.props.edf.getData({ from, till, frequency: this.state.frequency });
+    const newData = await this.props.edf.getData({
+      from,
+      till,
+      frequency: this.state.frequency,
+    });
 
-    if (!direction) { // overwrite data
+    if (!direction) {
+      // overwrite data
       data = newData;
       bufferRange = [left, right];
-    }
-    else if (direction === 'left') {
+    } else if (direction === 'left') {
       if (shouldAppend) {
-        loop(i => data[i] = [...newData[i], ...data[i]]);
+        loop(i => (data[i] = [...newData[i], ...data[i]]));
         bufferRange[0] = left;
       } else {
-        loop(i => data[i] = [...newData[i], ...data[i].slice(0, -newData[i].length)]);
+        loop(
+          i =>
+            (data[i] = [
+              ...newData[i],
+              ...data[i].slice(0, -newData[i].length),
+            ]),
+        );
         bufferRange = bufferRange.map(i => i - this.chunkWidth);
       }
-    }
-    else if (direction === 'right') {
+    } else if (direction === 'right') {
       if (shouldAppend) {
-        loop(i => data[i] = [...data[i], ...newData[i]]);
+        loop(i => (data[i] = [...data[i], ...newData[i]]));
         bufferRange[1] = right;
       } else {
-        loop(i => data[i] = [...data[i].slice(newData[i].length), ...newData[i]]);
+        loop(
+          i => (data[i] = [...data[i].slice(newData[i].length), ...newData[i]]),
+        );
         bufferRange = bufferRange.map(i => i + this.chunkWidth);
       }
     }
 
-    console.log('\tupdate | buffer is', { left: time(bufferRange[0]), right: time(bufferRange[1]) });
+    console.log('\tupdate | buffer is', {
+      left: time(bufferRange[0]),
+      right: time(bufferRange[1]),
+    });
 
     await this.setStateAsync({ data, bufferRange });
     this.isLoading = false;
     this.checkIfBufferIsSufficient();
-  }
+  };
 
   togglePlay = () => {
     this.isPlaying = !this.isPlaying;
     if (this.isPlaying) this.play();
-  }
+  };
 
   play = () => {
     if (!this.isPlaying) return;
@@ -267,7 +309,7 @@ export default class EdfView extends Component {
     const stepWidth = (windowRight - windowLeft) / 25; // move 20% per frame
     this.updateDateWindow(windowLeft + stepWidth, windowRight + stepWidth);
     window.setTimeout(this.play, 100);
-  }
+  };
 
   renderGraphs = () => {
     const { dateWindow, frequency, data = [] } = this.state;
@@ -277,12 +319,18 @@ export default class EdfView extends Component {
     const setGraphWrapper = el => {
       if (!el) return;
       this.graphWrapper = el;
-      this.props.emitter.emit('l-graphWrapperDimensions', el.getClientRects()[0]);
+      this.props.emitter.emit(
+        'l-graphWrapperDimensions',
+        el.getClientRects()[0],
+      );
     };
     const channels = header.channels.filter(c => c.label !== '-');
     const height = this.graphWrapper
       ? this.graphWrapper.offsetHeight / channels.length
       : null;
+    const addGraph = channel => ref => {
+      this.graphs[channel.index] = ref;
+    };
 
     // TODO emit height
 
@@ -301,32 +349,34 @@ export default class EdfView extends Component {
         dateWindow={this.state.dateWindow}
       />,
       <div key="graphs" className="graphs" ref={setGraphWrapper}>
-        {height && channels.map((channel) => (
-          <Graph
-            key={`${channel.label}-${channel.index}`}
-            channel={channel}
-            frequency={frequency}
-            data={data[channel.index]}
-            artifacts={artifacts[channel.label]}
-            dateWindow={dateWindow}
-            onChange={this.updateDateWindow}
-            height={height}
-            emitter={emitter}
-          />
-        ))}
+        {height &&
+          channels.map(channel => (
+            <Graph
+              key={`${channel.label}-${channel.index}`}
+              channel={channel}
+              frequency={frequency}
+              data={data[channel.index]}
+              artifacts={artifacts[channel.label]}
+              dateWindow={dateWindow}
+              onChange={this.updateDateWindow}
+              height={height}
+              emitter={emitter}
+              ref={addGraph(channel)}
+            />
+          ))}
       </div>,
     ];
-  }
+  };
 
   render() {
     return (
-      <div className="edf" ref={el => this.container = el}>
-        {this.props.edf
-          ? this.renderGraphs()
-          : <h1 className="loading">Loading EDF file</h1>
-        }
+      <div className="edf" ref={el => (this.container = el)}>
+        {this.props.edf ? (
+          this.renderGraphs()
+        ) : (
+          <h1 className="loading">Loading EDF file</h1>
+        )}
       </div>
     );
   }
-
 }

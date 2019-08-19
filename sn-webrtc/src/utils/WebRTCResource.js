@@ -1,9 +1,8 @@
 import FileTransfer from './FileTransfer';
 
 export default class WebRTCResource {
-
   id = 0;
-  channel = 'edf'
+  channel = 'edf';
 
   constructor(peer, size, name) {
     this.peer = peer;
@@ -17,10 +16,13 @@ export default class WebRTCResource {
 
     try {
       await this.waitForChannelOpen(channelLabel);
-      const result = this.peer.sendDirectly(channelLabel, 'read', { from, till, type: 'arraybuffer' });
+      const result = this.peer.sendDirectly(channelLabel, 'read', {
+        from,
+        till,
+        type: 'arraybuffer',
+      });
       if (!result) throw new Error(`Could not send message to ${channelLabel}`);
-    }
-    catch (err) {
+    } catch (err) {
       console.error('WebRTCResource.read', err);
     }
 
@@ -32,7 +34,7 @@ export default class WebRTCResource {
   }
 
   async waitForChannelOpen(label) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const channel = this.peer.getDataChannel(label);
 
       if (channel.readyState === 'open') resolve();
@@ -40,10 +42,9 @@ export default class WebRTCResource {
 
       function check(unknownChannel) {
         if (channel.label !== unknownChannel.label) return;
-        this.peer.off('channelOpen', check);
+        this.off('channelOpen', check);
         resolve();
       }
     });
   }
-
 }

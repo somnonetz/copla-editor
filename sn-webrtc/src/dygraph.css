@@ -1,4 +1,6 @@
-.edf-wrapper { width: 100%; }
+.edf-wrapper {
+  width: 100%;
+}
 
 .edf {
   display: flex;
@@ -13,7 +15,7 @@
   user-select: none;
 }
 .range .dygraph-rangesel-bgcanvas {
-  background-color: rgba(66, 139, 202, .5);
+  background-color: rgba(66, 139, 202, 0.5);
 }
 
 .range .dygraph-rangesel-zoomhandle {
@@ -21,14 +23,25 @@
   display: none;
 }
 
-.range:hover .dygraph-axis-label { display: none; }
-.range:hover .dygraph-rangesel-zoomhandle { display: block; }
+.range:hover .dygraph-axis-label {
+  display: none;
+}
+.range:hover .dygraph-rangesel-zoomhandle {
+  display: block;
+}
 
-
-.hypnogram { overflow: hidden; }
-.hypnogram .dygraph-rangesel-fgcanvas { top: -2px; }
-.hypnogram .dygraph-rangesel-bgcanvas { background-color: white; }
-.hypnogram .dygraph-rangesel-zoomhandle { display: none; }
+.hypnogram {
+  overflow: hidden;
+}
+.hypnogram .dygraph-rangesel-fgcanvas {
+  top: -2px;
+}
+.hypnogram .dygraph-rangesel-bgcanvas {
+  background-color: white;
+}
+.hypnogram .dygraph-rangesel-zoomhandle {
+  display: none;
+}
 
 .hypnogram .dygraph-axis-label {
   width: 53px;
@@ -42,21 +55,25 @@
   left: 59px;
   top: 0;
   padding-top: 1px;
-  background-color: rgba(255, 255, 255, .75);
+  background-color: rgba(255, 255, 255, 0.75);
   color: #428bca;
   font-size: 14px;
   line-height: 1;
 }
 
-.graphs { flex: 1; }
+.graphs {
+  flex: 1;
+}
 
-.graphs > div { position: relative; }
+.graphs > div {
+  position: relative;
+}
 .graphs > div:nth-child(odd) {
   background-color: #f6f6f6;
 }
 
 .graphs > div:nth-child(odd) span {
-  background-color: rgba(246, 246, 246, .75);
+  background-color: rgba(246, 246, 246, 0.75);
 }
 
 .drag {
@@ -86,7 +103,7 @@
   top: 0px;
   right: 0;
   padding: 2px 5px;
-  background: rgba(255, 255, 255, .75);
+  background: rgba(255, 255, 255, 0.75);
   line-height: normal;
   text-align: left;
   overflow: hidden;
@@ -96,7 +113,7 @@
 .dygraph-legend-line {
   display: inline-block;
   position: relative;
-  bottom: .5ex;
+  bottom: 0.5ex;
   padding-left: 1em;
   height: 1px;
   border-bottom-width: 2px;
@@ -108,7 +125,7 @@
 .dygraph-legend-dash {
   display: inline-block;
   position: relative;
-  bottom: .5ex;
+  bottom: 0.5ex;
   height: 1px;
   border-bottom-width: 2px;
   border-bottom-style: solid;
@@ -176,7 +193,6 @@
   transform: rotate(-90deg);
 }
 
-
 /* Plotbands */
 
 .plotband {
@@ -188,7 +204,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  background-color: rgba(255, 0, 0, .25);
+  background-color: rgba(255, 0, 0, 0.25);
   z-index: 1000;
 }
 
@@ -224,8 +240,16 @@
   left: 10px;
   cursor: e-resize;
 }
-.plotband-move { cursor: ew-resize; }
+.plotband-move {
+  cursor: ew-resize;
+}
 
-.plotband-left::after { content: '◀'; }
-.plotband-move::after { content: '↔'; }
-.plotband-right::after { content: '▶'; }
+.plotband-left::after {
+  content: '◀';
+}
+.plotband-move::after {
+  content: '↔';
+}
+.plotband-right::after {
+  content: '▶';
+}

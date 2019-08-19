@@ -1,6 +1,5 @@
 export default class Pseudonyms {
-
-  pseudonyms = {}
+  pseudonyms = {};
 
   constructor() {
     this.pseudonyms = JSON.parse(localStorage.getItem('pseudonyms')) || {};
@@ -25,5 +24,4 @@ export default class Pseudonyms {
   getAll() {
     return this.pseudonyms;
   }
-
 }

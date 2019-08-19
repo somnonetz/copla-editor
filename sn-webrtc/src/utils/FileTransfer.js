@@ -3,7 +3,7 @@ function send(peer, buffer, channelLabel) {
   const channel = peer.getDataChannel(channelLabel);
   let start = 0;
 
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     channel.bufferedAmountLowThreshold = 8 * chunksize;
     channel.addEventListener('bufferedamountlow', sendSlice);
     window.setTimeout(sendSlice, 0);
@@ -14,7 +14,6 @@ function send(peer, buffer, channelLabel) {
       start += chunksize;
 
       if (start >= buffer.byteLength) resolve();
-
       else if (channel.bufferedAmount <= channel.bufferedAmountLowThreshold) {
         window.setTimeout(sendSlice, 0);
       }
@@ -29,21 +28,19 @@ function load(peer, size, channelLabel) {
 
   return new Promise((resolve, reject) => {
     channel.binaryType = 'arraybuffer';
-    channel.onerror = (err) => reject(err);
-    channel.onmessage = (message) => {
+    channel.onerror = err => reject(err);
+    channel.onmessage = message => {
       const buffer = message.data;
       receiveBuffer.set(new Int8Array(buffer), received);
       received += buffer.byteLength;
 
       if (received === size) {
         resolve(receiveBuffer.buffer);
-      }
-      else if (received > size) {
+      } else if (received > size) {
         reject(new Error('received more than expected, discarding...'));
       }
     };
   });
-
 }
 
 export default { send, load };

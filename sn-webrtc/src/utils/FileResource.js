@@ -1,5 +1,4 @@
 export default class FileResource {
-
   constructor(file) {
     this.file = file;
     this.size = this.file.size;
@@ -18,7 +17,7 @@ export default class FileResource {
     const till = options.till || this.size;
     const blob = this.file.slice(from, till);
 
-    const promise = new Promise((resolve) => {
+    const promise = new Promise(resolve => {
       this.reader.onload = evt => resolve(evt.target.result);
     });
 
@@ -26,5 +25,4 @@ export default class FileResource {
 
     return promise;
   }
-
 }
