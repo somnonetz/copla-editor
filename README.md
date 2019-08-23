@@ -2,7 +2,7 @@
 
 A performant web-based visualization, assessment and collaboration tool for multidimensional biosignals
 
-This repo contains to versions of the application: *sn-editor* tailored for integration with XNAT and *sn-webrtc* with focus on live collaboration. Both will be merged as soon as possible.
+This repo contains two versions of the application: *sn-editor* tailored for integration with XNAT and *sn-webrtc* with focus on live collaboration. Both will be merged as soon as possible.
 
 ![Screenshot](https://raw.githubusercontent.com/somnonetz/copla-editor/master/screenshot.png)
 
