@@ -45,7 +45,7 @@ export default class XNAT {
       const url = utils.tpl(this.urls.session, this.data);
       const credentials = window.btoa(`${username}:${password}`);
 
-      return http.get(url, {
+      return http.post(url, {
          headers: {
             Authorization: `Basic ${credentials}`,
          },
