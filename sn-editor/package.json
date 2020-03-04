@@ -22,5 +22,11 @@
     "start": "NODE_PATH=src react-scripts start",
     "build": "NODE_PATH=src react-scripts build",
     "deploy": "rsync --recursive --compress --delete --stats --human-readable --exclude '*.edf' build/* xnat:~/copla-editor"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
