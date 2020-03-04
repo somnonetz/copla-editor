@@ -20,6 +20,7 @@ export default class XNAT {
 
    urls = {
       session: '{host}/JSESSION', // https://wiki.xnat.org/pages/viewpage.action?pageId=6226264
+      auth: '{host}/auth',
    }
 
    getProjects = utils.getChildren(Project)
@@ -58,8 +59,10 @@ export default class XNAT {
    }
 
    checkLogin() {
-      const url = utils.tpl(this.urls.session, this.data);
-      return http.get(url).then(() => true, () => false);
+    const url = utils.tpl(this.urls.auth, this.data);
+    return http.get(url, { redirect: 'manual' })
+      .then(response => response.ok)
+      .catch(() => false);
    }
 
    checkIfHostIsReachable() {
@@ -70,6 +73,11 @@ export default class XNAT {
          .then(() => true, () => false);
    }
 
+  getSession() {
+    const url = utils.tpl(this.urls.session, this.data);
+    return http.get(url).then(response => response.text());
+  }
+
    renewSession() {
       const url = utils.tpl('{host}/version', this.data);
       return http.get(url).then(
@@ -79,10 +87,10 @@ export default class XNAT {
    }
 
    whoami() {
-      const url = utils.tpl('{host}/auth', this.data);
-      const pattern = /User '(\w+)' is logged in/; // hard coded in UserAuth.java
-      return http.getText(url)
-         .then(text => _.last(text.match(pattern)));
+    const url = utils.tpl(this.urls.auth, this.data);
+    const pattern = /User '(\w+)' is logged in/; // hard coded in UserAuth.java
+    return http.getText(url)
+      .then(text => _.last(text.match(pattern)))
+      .catch(() => null);
    }
-
 }
