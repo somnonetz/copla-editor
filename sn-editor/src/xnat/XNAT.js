@@ -73,10 +73,10 @@ export default class XNAT {
          .then(() => true, () => false);
    }
 
-  getSession() {
-    const url = utils.tpl(this.urls.session, this.data);
-    return http.get(url).then(response => response.text());
-  }
+   getSession() {
+     const url = utils.tpl(this.urls.session, this.data);
+     return http.get(url).then(response => response.text());
+   }
 
    renewSession() {
       const url = utils.tpl('{host}/version', this.data);
