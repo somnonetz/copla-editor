@@ -4,7 +4,7 @@ import _ from 'lodash';
 import Countdown from 'components/Countdown';
 import Experiment from 'xnat/Experiment';
 import { sleep } from 'utils/utils';
-import { host, defaultProject, defaultSubject } from 'config';
+import { host, defaultProject, defaultSubject, pipelineName, pipelineParams } from 'config';
 
 const STATES = {
   DESTINED: 1,
@@ -73,7 +73,7 @@ export default class Upload extends Component {
       this.updateStatus(STATES.UPLOADED);
 
       // start pipeline
-      await experiment.startPipeline('somnonetz-pipeline', 'sn_getEDFHeaderdata');
+      await experiment.startPipeline(pipelineName, pipelineParams);
       this.updateStatus(STATES.POLLING);
 
       // wait for results

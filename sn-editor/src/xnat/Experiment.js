@@ -36,8 +36,9 @@ export default class Experiment extends Base {
       return `xsiType=${type}&date=${date}`;
    }
 
-   startPipeline(pipeline, algorithm) {
-      const url = `{host}/projects/{project}/pipelines/${pipeline}/experiments/{experiment}?algorithm=${algorithm}`;
+   startPipeline(pipeline, pipelineParams) {
+      const params = new URLSearchParams(pipelineParams).toString()
+      const url = `{host}/projects/{project}/pipelines/${pipeline}/experiments/{experiment}?${params}`;
       const headers = { 'Content-Type': 'text/plain' };
       return http.post(utils.tpl(url, this.data), { headers });
    }
