@@ -26,3 +26,12 @@
   justify-content: space-between;
   align-items: baseline;
 }
+
+.select-box {
+  display: block;
+  margin: 0.5rem;
+}
+
+.select-box select {
+  width: 100%;
+}
