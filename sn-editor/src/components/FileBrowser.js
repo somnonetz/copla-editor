@@ -31,9 +31,9 @@ export default class FileBrowser extends Component {
             onUpload={onUpload}
           />
         )}
-        {bundles.filter(b => b.isLocal).length >= 2 &&
+        {/*bundles.filter(b => b.isLocal).length >= 2 &&
           <button className="btn btn-primary full-width m-t-1" onClick={console.log}>Upload all</button>
-        }
+        */}
       </div>
     );
   }
