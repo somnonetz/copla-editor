@@ -28,6 +28,11 @@ export default class XnatView extends Component {
       password,
       loggedIn: null,
       loginMessage: '',
+      xnat: null,
+      projects: [],
+      selectedProject: null,
+      subjects: [],
+      selectedSubject: null,
     };
     // this.setStateAsync = state => new Promise(resolve => this.setState(state, resolve));
   }
@@ -41,7 +46,14 @@ export default class XnatView extends Component {
     }));
 
     const loggedIn = await xnat.checkLogin();
-    this.setState({ xnat, loggedIn });
+    const projects = await xnat.getProjects();
+
+    // use first returned project and subject as defaults
+    const subjects = await projects[0].getSubjects();
+    const selectedProject = projects[0];
+    const selectedSubject = subjects[0];
+
+    this.setState({ xnat, loggedIn, projects, subjects, selectedProject, selectedSubject});
     this.props.onLoginChange(loggedIn);
   }
 
@@ -63,6 +75,24 @@ export default class XnatView extends Component {
     }
   }
 
+  handleSelectProject = async (event) => {
+    const project = this.state.projects.find(p => p.data.project == event.target.value);
+    const subjects = await project.getSubjects();
+
+    this.setState({
+      selectedProject: project,
+      subjects: subjects,
+    });
+  }
+
+  handleSelectSubject = async (event) => {
+    const subject = this.state.subjects.find(s => s.data.subject == event.target.value);
+
+    this.setState({
+      selectedSubject: subject,
+    });
+  }
+
   handleLogout = () => {
     this.setState({
       loggedIn: false,
@@ -71,7 +101,17 @@ export default class XnatView extends Component {
   }
 
   render() {
-    const { username, password, loginMessage, loggedIn } = this.state;
+    const {
+      username,
+      password,
+      loginMessage,
+      loggedIn,
+      projects,
+      subjects,
+      selectedProject,
+      selectedSubject,
+    } = this.state;
+
     const { bundles, onNewData } = this.props;
 
     if (!loggedIn) {
@@ -89,8 +129,30 @@ export default class XnatView extends Component {
     return (
       <div className="xnat">
         <p className="alert alert-success"><strong>XNAT</strong> Logged in as {username}.</p>
+        <div class="select-box">
+          <label>Project</label>
+          <select name="project" onChange={this.handleSelectProject}>
+            {_.map(projects, p =>
+              <option key={p.data.project} value={p.data.project}>{p.data.project_name}</option>
+            )};
+          </select>
+        </div>
+        <div class="select-box">
+          <label>Subject</label>
+          <select name="subject" onChange={this.handleSelectSubject}>
+            {_.map(subjects, s =>
+              <option key={s.data.subject} value={s.data.subject}>{s.data.subject_label}</option>
+            )};
+          </select>
+        </div>
         {_.map(bundles, bundle =>
-          <Upload key={bundle.edf.file.name} bundle={bundle} onFinish={onNewData} />
+          <Upload
+            key={bundle.edf.file.name}
+            bundle={bundle}
+            onFinish={onNewData}
+            project={selectedProject}
+            subject={selectedSubject}
+          />
         )}
       </div>
     );

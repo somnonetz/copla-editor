@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Countdown from 'components/Countdown';
 import Experiment from 'xnat/Experiment';
+import Project from 'xnat/Project'
+import Subject from 'xnat/Subject'
 import { sleep } from 'utils/utils';
-import { host, defaultProject, defaultSubject, pipelineName, pipelineParams } from 'config';
+import { host, pipelineName, pipelineParams } from 'config';
 
 const STATES = {
   DESTINED: 1,
@@ -21,6 +23,8 @@ export default class Upload extends Component {
   static propTypes = {
     bundle: PropTypes.object.isRequired,
     onFinish: PropTypes.func,
+    project: PropTypes.instanceOf(Project),
+    subject: PropTypes.instanceOf(Subject),
   }
 
   static defaultProps = {
@@ -48,13 +52,16 @@ export default class Upload extends Component {
 
   getExperiment = () => {
     // const name = this.props.bundle.edf.header.recordIdentification.replace(/\s/g, '_');
+    const { project, subject } = this.props;
+
     const options = {
       host,
-      subject: defaultSubject,
-      project: defaultProject,
-      experiment: Math.random().toString(32).slice(2), // name,
+      subject: subject.data.subject,
+      project: project.data.project,
+      experiment: Math.random().toString(32).slice(2), //name
       type: 'snet01:sleepResearchSessionData',
     };
+
     return new Experiment(options);
   }
 
@@ -114,6 +121,7 @@ export default class Upload extends Component {
 
   render() {
     const { uploadStatus, error } = this.state;
+    const { project, subject } = this.props;
     const filename = this.props.bundle.edf.file.name;
     const progress = `${this.state.progress.toFixed(2)}%`;
     const Alert = ({ type = 'info', children }) => <div className={`alert alert-${type}`}>{children}</div>;
@@ -148,7 +156,7 @@ export default class Upload extends Component {
       default: // STATES.DESTINED and no state (which should not happen)
         return (
           <div className="list-group m-b-1">
-            <p>Will upload <code>{filename}</code> into <code>{defaultProject}/{defaultSubject}</code>.</p>
+            <p>Will upload <code>{filename}</code> into <code>{project.data.project}/{subject.data.subject_label}</code>.</p>
             <button onClick={this.startUpload}>Start Upload</button>
           </div>
         );

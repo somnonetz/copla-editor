@@ -23,6 +23,7 @@ export default class Subject extends Base {
    initialize(data) {
       this.data = utils.rename(data, {
          ID: 'subject',
+         label: 'subject_label',
       });
       this.data.query = this.getQuery();
    }
