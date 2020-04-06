@@ -46,12 +46,16 @@ export default class XnatView extends Component {
     }));
 
     const loggedIn = await xnat.checkLogin();
-    const projects = await xnat.getProjects();
+    let projects, subjects, selectedProject, selectedSubject;
 
-    // use first returned project and subject as defaults
-    const subjects = await projects[0].getSubjects();
-    const selectedProject = projects[0];
-    const selectedSubject = subjects[0];
+    if (loggedIn) {
+      projects = await xnat.getProjects();
+      subjects = await projects[0].getSubjects();
+
+      // use first returned project and subject as defaults
+      selectedProject = projects[0];
+      selectedSubject = subjects[0];
+    }
 
     this.setState({ xnat, loggedIn, projects, subjects, selectedProject, selectedSubject});
     this.props.onLoginChange(loggedIn);
@@ -60,11 +64,22 @@ export default class XnatView extends Component {
   handleLogin = async (username, password) => {
     try {
       await this.state.xnat.login(username, password);
+      const projects = await this.state.xnat.getProjects();
+      const subjects = await projects[0].getSubjects();
+
+      // use first returned project and subject as defaults
+      const selectedProject = projects[0];
+      const selectedSubject = subjects[0];
+
       this.setState({
         username,
         password,
         loggedIn: true,
         loginMessage: '',
+        projects,
+        subjects,
+        selectedProject,
+        selectedSubject
       });
       this.props.onLoginChange(true);
       return true;
