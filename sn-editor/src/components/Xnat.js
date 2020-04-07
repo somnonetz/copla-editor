@@ -91,7 +91,7 @@ export default class XnatView extends Component {
   }
 
   handleSelectProject = async (event) => {
-    const project = this.state.projects.find(p => p.data.project == event.target.value);
+    const project = this.state.projects.find(p => p.data.project === event.target.value);
     const subjects = await project.getSubjects();
 
     this.setState({
@@ -101,7 +101,7 @@ export default class XnatView extends Component {
   }
 
   handleSelectSubject = async (event) => {
-    const subject = this.state.subjects.find(s => s.data.subject == event.target.value);
+    const subject = this.state.subjects.find(s => s.data.subject === event.target.value);
 
     this.setState({
       selectedSubject: subject,
