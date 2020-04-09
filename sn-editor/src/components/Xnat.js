@@ -96,6 +96,7 @@ export default class XnatView extends Component {
 
     this.setState({
       selectedProject: project,
+      selectedSubject: subjects[0],
       subjects: subjects,
     });
   }
