@@ -26,6 +26,7 @@ export default class Experiment extends Base {
    initialize(data) {
       this.data = utils.rename(data, {
          ID: 'experiment',
+         label: 'experiment_label'
       });
       this.data.query = this.getQuery();
    }

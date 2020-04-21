@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Countdown from 'components/Countdown';
 import Experiment from 'xnat/Experiment';
-import Project from 'xnat/Project'
-import Subject from 'xnat/Subject'
+import Project from 'xnat/Project';
+import Subject from 'xnat/Subject';
 import { sleep } from 'utils/utils';
-import { host, pipelineName, pipelineParams } from 'config';
+import { host, doReconstruction, pipelineName, pipelineParams } from 'config';
 
 const STATES = {
+  READY: 0,
   DESTINED: 1,
   UPLOADING: 2,
   UPLOADED: 3,
@@ -23,12 +24,15 @@ export default class Upload extends Component {
   static propTypes = {
     bundle: PropTypes.object.isRequired,
     onFinish: PropTypes.func,
+    onUpdateStatus: PropTypes.func,
     project: PropTypes.instanceOf(Project),
     subject: PropTypes.instanceOf(Subject),
+    experiment: PropTypes.instanceOf(Experiment),
   }
 
   static defaultProps = {
     onFinish: {},
+    onUpdateStatus: {},
   }
 
   state = {
@@ -39,6 +43,7 @@ export default class Upload extends Component {
 
   updateStatus = (uploadStatus) => {
     this.props.bundle.uploadStatus = uploadStatus;
+    this.props.onUpdateStatus(this.props.bundle, uploadStatus);
     this.setState({ uploadStatus });
   }
 
@@ -46,8 +51,10 @@ export default class Upload extends Component {
     this.setState({
       error,
       progress: 0,
-      uploadStatus: error ? STATES.FAILED : STATES.DONE,
     });
+
+    this.updateStatus(error ? STATES.FAILED : STATES.READY)
+
   }
 
   getExperiment = () => {
@@ -66,34 +73,47 @@ export default class Upload extends Component {
   }
 
   startUpload = async () => {
+    let error = null;
+
     try {
       this.updateStatus(STATES.UPLOADING);
 
-      // create new session (experiment), scan and resource
-      const experiment = await this.getExperiment().create();
-      const scan = await experiment.createScan({ scan: 'psg', type: 'snet01:psgScanData' });
-      const resource = await scan.createResource({ resource: 'PSG' });
+      let experiment = this.props.experiment;
+
+      if (!experiment) {
+        experiment = await this.getExperiment().create();
+      }
+
+      const scan = await experiment.createScan({
+        scan: this.props.bundle.edf.file.name.replace(/\s|\./g, '_').replace(/_edf$/g, ''),
+        type: 'snet01:psgScanData'
+      });
+
+      const resource = await scan.createResource({ resource: 'EDF' });
 
       // upload edf file
       const file = this.props.bundle.edf.file.file;
       await resource.createFile(file, progress => this.setState({ progress }));
-      this.updateStatus(STATES.UPLOADED);
 
-      // start pipeline
-      await experiment.startPipeline(pipelineName, pipelineParams);
-      this.updateStatus(STATES.POLLING);
+      this.updateStatus(STATES.DONE);
 
-      // wait for results
-      const newBundle = await this.getResults(experiment);
-      this.updateStatus(STATES.PREPARING);
+      if (doReconstruction) {
+        // start pipeline
+        await experiment.startPipeline(pipelineName, pipelineParams);
+        this.updateStatus(STATES.POLLING);
 
-      await this.props.onFinish(newBundle);
+        // wait for results
+        const newBundle = await this.getResults(experiment);
+        this.updateStatus(STATES.PREPARING);
+
+        await this.props.onFinish(newBundle);
+      }
     }
     catch (e) {
-      this.finish(e.message);
+      console.error(e);
+      error = e.statusText;
+      this.finish(error);
     }
-
-    return this.finish();
   }
 
   getResults = async (experiment) => {
@@ -121,21 +141,27 @@ export default class Upload extends Component {
 
   render() {
     const { uploadStatus, error } = this.state;
-    const { project, subject } = this.props;
+    const { project, subject, experiment } = this.props;
     const filename = this.props.bundle.edf.file.name;
     const progress = `${this.state.progress.toFixed(2)}%`;
     const Alert = ({ type = 'info', children }) => <div className={`alert alert-${type}`}>{children}</div>;
+
+    const project_label = project.data.project_name;
+    const subject_label = subject.data.subject_label;
+    const experiment_label = _.get(experiment, 'data.experiment_label', null);
 
     switch (uploadStatus) {
 
       case STATES.UPLOADING:
         return (
-          <Alert>
-            <span>Uploading</span>
-            <div className="progress-bar progress-info">
-              <div style={{ width: progress }}>{progress}</div>
-            </div>
-          </Alert>
+          <div className="list-group m-b-1">
+            <Alert>
+              <span>Uploading</span>
+              <div className="progress-bar progress-info">
+                <div style={{ width: progress }}>{progress}</div>
+              </div>
+            </Alert>
+          </div>
         );
 
       case STATES.UPLOADED:
@@ -148,15 +174,27 @@ export default class Upload extends Component {
         return <Alert><span className="loading">Preparing Results</span></Alert>;
 
       case STATES.DONE:
-        return <Alert type="success">Uploaded {filename}.</Alert>;
+        return (
+          <div className="list-group m-b-1">
+            <Alert type="info"><strong>Uploaded</strong> {filename}.</Alert>
+            <button onClick={() => this.finish(false)}>Done</button>
+          </div>
+        );
 
       case STATES.FAILED:
-        return <Alert type="error"><strong>Error</strong> {error}.</Alert>;
+        return (
+          <div className="list-group m-b-1">
+            <Alert type="error"><strong>Error</strong> {error}.</Alert>
+            <p>Upload <code>{filename}</code> to <code>{project_label}/{subject_label}/{experiment_label ? experiment_label : '<new experiment>' }</code>.</p>
+            <button onClick={this.startUpload}>Retry Upload</button>
+          </div>
+        );
 
       default: // STATES.DESTINED and no state (which should not happen)
         return (
           <div className="list-group m-b-1">
-            <p>Will upload <code>{filename}</code> into <code>{project.data.project}/{subject.data.subject_label}</code>.</p>
+            <Alert type="info"><strong>Upload</strong></Alert>
+            <p>Upload <code>{filename}</code> to <code>{project_label}/{subject_label}/{experiment_label ? experiment_label : '<new experiment>' }</code>.</p>
             <button onClick={this.startUpload}>Start Upload</button>
           </div>
         );

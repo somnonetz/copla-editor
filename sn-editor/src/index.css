@@ -32,6 +32,6 @@
   margin: 0.5rem;
 }
 
-.select-box select {
+.select-box select, .select-box input {
   width: 100%;
 }

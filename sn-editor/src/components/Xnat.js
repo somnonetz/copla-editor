@@ -6,10 +6,15 @@ import Upload from 'components/Upload';
 import XNAT from 'xnat/XNAT';
 import { host, autologin, credentials } from 'config';
 
+const UPLOADSTATES = {
+  DONE: 6,
+};
+
 export default class XnatView extends Component {
 
   static propTypes = {
     onLoginChange: PropTypes.func,
+    onUpdateStatus: PropTypes.func,
     onNewData: PropTypes.func,
     bundles: PropTypes.array,
   }
@@ -17,6 +22,7 @@ export default class XnatView extends Component {
   static defaultProps = {
     onLoginChange: {},
     onNewData: {},
+    onUpdateStatus: {},
     bundles: [],
   }
 
@@ -28,11 +34,13 @@ export default class XnatView extends Component {
       password,
       loggedIn: null,
       loginMessage: '',
-      xnat: null,
+      xnat: {},
       projects: [],
-      selectedProject: null,
+      selectedProject: {},
       subjects: [],
-      selectedSubject: null,
+      selectedSubject: {},
+      experiments: [],
+      selectedExperiment: {},
     };
     // this.setStateAsync = state => new Promise(resolve => this.setState(state, resolve));
   }
@@ -46,42 +54,47 @@ export default class XnatView extends Component {
     }));
 
     const loggedIn = await xnat.checkLogin();
-    let projects, subjects, selectedProject, selectedSubject;
 
     if (loggedIn) {
-      projects = await xnat.getProjects();
-      subjects = await projects[0].getSubjects();
-
-      // use first returned project and subject as defaults
-      selectedProject = projects[0];
-      selectedSubject = subjects[0];
+      this.initSelected(xnat);
     }
 
-    this.setState({ xnat, loggedIn, projects, subjects, selectedProject, selectedSubject});
+    this.setState({ xnat, loggedIn });
     this.props.onLoginChange(loggedIn);
+  }
+
+  initSelected = async (xnat) => {
+      const projects = await xnat.getProjects();
+      this.setState({ projects });
+
+      if (projects[0]) {
+        await this.handleSelectProject({ target: { value: projects[0].data.project } });
+      }
+  }
+
+  handleUpdateStatus = async (bundle, uploadStatus) => {
+    if (uploadStatus === UPLOADSTATES.DONE) {
+      this.setState({
+        experiments: await this.state.selectedSubject.getExperiments(),
+      })
+    }
+    this.props.onUpdateStatus(bundle, uploadStatus);
   }
 
   handleLogin = async (username, password) => {
     try {
       await this.state.xnat.login(username, password);
-      const projects = await this.state.xnat.getProjects();
-      const subjects = await projects[0].getSubjects();
-
-      // use first returned project and subject as defaults
-      const selectedProject = projects[0];
-      const selectedSubject = subjects[0];
 
       this.setState({
         username,
         password,
         loggedIn: true,
         loginMessage: '',
-        projects,
-        subjects,
-        selectedProject,
-        selectedSubject
       });
+  
+      await this.initSelected(this.state.xnat);
       this.props.onLoginChange(true);
+    
       return true;
     }
     catch (e) {
@@ -96,16 +109,39 @@ export default class XnatView extends Component {
 
     this.setState({
       selectedProject: project,
-      selectedSubject: subjects[0],
       subjects: subjects,
     });
+
+    if (subjects[0]) {
+      await this.handleSelectSubject({ target: { value: subjects[0].data.subject } });
+    }
   }
 
   handleSelectSubject = async (event) => {
     const subject = this.state.subjects.find(s => s.data.subject === event.target.value);
+    const experiments = await subject.getExperiments();
 
     this.setState({
       selectedSubject: subject,
+      experiments: experiments
+    });
+
+    if (experiments[0]) {
+      await this.handleSelectExperiment({ target: { value: null } })
+    }
+  }
+
+  handleSelectExperiment = async (event) => {
+    if (!event.target.value) {
+      return this.setState({
+        selectedExperiment: null,
+      });
+    }
+
+    const experiment = this.state.experiments.find(s => s.data.experiment === event.target.value);
+
+    this.setState({
+      selectedExperiment: experiment,
     });
   }
 
@@ -124,8 +160,10 @@ export default class XnatView extends Component {
       loggedIn,
       projects,
       subjects,
+      experiments,
       selectedProject,
       selectedSubject,
+      selectedExperiment,
     } = this.state;
 
     const { bundles, onNewData } = this.props;
@@ -144,23 +182,9 @@ export default class XnatView extends Component {
 
     return (
       <div className="xnat">
-        <p className="alert alert-success"><strong>XNAT</strong> Logged in as {username}.</p>
-        <div class="select-box">
-          <label>Project</label>
-          <select name="project" onChange={this.handleSelectProject}>
-            {_.map(projects, p =>
-              <option key={p.data.project} value={p.data.project}>{p.data.project_name}</option>
-            )};
-          </select>
-        </div>
-        <div class="select-box">
-          <label>Subject</label>
-          <select name="subject" onChange={this.handleSelectSubject}>
-            {_.map(subjects, s =>
-              <option key={s.data.subject} value={s.data.subject}>{s.data.subject_label}</option>
-            )};
-          </select>
-        </div>
+
+        <p className="alert alert-success"><strong>XNAT</strong> Logged in{username && <span> as {username}</span>}</p> 
+
         {_.map(bundles, bundle =>
           <Upload
             key={bundle.edf.file.name}
@@ -168,8 +192,40 @@ export default class XnatView extends Component {
             onFinish={onNewData}
             project={selectedProject}
             subject={selectedSubject}
+            experiment={selectedExperiment}
+            onUpdateStatus={this.handleUpdateStatus}
           />
         )}
+
+        <div className="card">
+          <div className="card-body">
+            <div class="select-box">
+              <label>Project</label>
+              <select name="project" onChange={this.handleSelectProject}>
+                {_.map(projects, p =>
+                  <option key={p.data.project} value={p.data.project}>{p.data.project_name}</option>
+                )};
+              </select>
+            </div>
+            <div class="select-box">
+              <label>Subject</label>
+              <select name="subject" onChange={this.handleSelectSubject}>
+                {_.map(subjects, s =>
+                  <option key={s.data.subject} value={s.data.subject}>{s.data.subject_label}</option>
+                )};
+              </select>
+            </div>
+            <div class="select-box">
+              <label>Experiment</label>
+              <select name="experiment" onChange={this.handleSelectExperiment}>
+                <option key="new" value={0}>Create new experiment</option>
+                {_.map(experiments, e =>
+                  <option key={e.data.experiment} value={e.data.experiment}>{e.data.experiment_label}</option>
+                )};
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

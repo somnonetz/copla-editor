@@ -85,6 +85,11 @@ export default class App extends Component {
     // pseudonymisierung: ja / nein?
   }
 
+  handleUpdateStatus = (bundle, uploadStatus) => {
+    bundle.uploadStatus = uploadStatus;
+    this.setState({ bundles: this.state.bundles });
+  }
+
   handleNewData = async (files) => {
     const bundle = await new Bundle(files).load;
     const bundles = [...this.state.bundles, bundle];
@@ -109,6 +114,7 @@ export default class App extends Component {
           <XNAT
             onLoginChange={this.handleLoginChange}
             onNewData={this.handleNewData}
+            onUpdateStatus={this.handleUpdateStatus}
             bundles={uploadBundles}
           />
           <FileBrowser

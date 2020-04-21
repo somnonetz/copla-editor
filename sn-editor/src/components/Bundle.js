@@ -2,6 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
+const STATES = {
+  READY: 0,
+  DONE: 6,
+  FAILED: 7,
+};
+
 export default class Bundle extends Component {
 
   static propTypes = {
@@ -45,7 +51,7 @@ export default class Bundle extends Component {
             </button>
           )]
         }
-        {this.state.isLocal && this.props.canUpload && uploadStatus === 0 &&
+        {this.state.isLocal && this.props.canUpload && (uploadStatus === STATES.READY) &&
           <button className="btn btn-primary" onClick={onUpload}>Upload</button>
         }
       </div>
