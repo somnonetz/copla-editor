@@ -59,13 +59,14 @@ export default class Upload extends Component {
 
   getExperiment = () => {
     // const name = this.props.bundle.edf.header.recordIdentification.replace(/\s/g, '_');
+
     const { project, subject } = this.props;
 
     const options = {
       host,
       subject: subject.data.subject,
       project: project.data.project,
-      experiment: Math.random().toString(32).slice(2), //name
+      experiment: this.props.experimentName,
       type: 'snet01:sleepResearchSessionData',
     };
 

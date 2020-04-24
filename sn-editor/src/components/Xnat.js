@@ -41,6 +41,7 @@ export default class XnatView extends Component {
       selectedSubject: {},
       experiments: [],
       selectedExperiment: {},
+      experimentName: null,
     };
     // this.setStateAsync = state => new Promise(resolve => this.setState(state, resolve));
   }
@@ -145,6 +146,12 @@ export default class XnatView extends Component {
     });
   }
 
+  handleInputExperimentName = async (event) => {
+    this.setState({
+      experimentName: event.target.value,
+    });
+  }
+
   handleLogout = () => {
     this.setState({
       loggedIn: false,
@@ -164,6 +171,7 @@ export default class XnatView extends Component {
       selectedProject,
       selectedSubject,
       selectedExperiment,
+      experimentName,
     } = this.state;
 
     const { bundles, onNewData } = this.props;
@@ -193,6 +201,7 @@ export default class XnatView extends Component {
             project={selectedProject}
             subject={selectedSubject}
             experiment={selectedExperiment}
+            experimentName={experimentName}
             onUpdateStatus={this.handleUpdateStatus}
           />
         )}
@@ -218,11 +227,15 @@ export default class XnatView extends Component {
             <div class="select-box">
               <label>Experiment</label>
               <select name="experiment" onChange={this.handleSelectExperiment}>
-                <option key="new" value={0}>Create new experiment</option>
+                <option key="new" value={null}>Create new experiment</option>
                 {_.map(experiments, e =>
                   <option key={e.data.experiment} value={e.data.experiment}>{e.data.experiment_label}</option>
                 )};
               </select>
+            </div>
+            <div class="select-box">
+              <label>New Experiment Name</label>
+              <input id="experiment-name" name="experimentName" onChange={this.handleInputExperimentName}></input>
             </div>
           </div>
         </div>
