@@ -40,7 +40,7 @@ export default class XnatView extends Component {
       subjects: [],
       selectedSubject: {},
       experiments: [],
-      selectedExperiment: {},
+      selectedExperiment: null,
       experimentName: null,
     };
     // this.setStateAsync = state => new Promise(resolve => this.setState(state, resolve));
