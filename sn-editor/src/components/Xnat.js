@@ -64,15 +64,6 @@ export default class XnatView extends Component {
     this.props.onLoginChange(loggedIn);
   }
 
-  initSelected = async (xnat) => {
-      const projects = await xnat.getProjects();
-      this.setState({ projects });
-
-      if (projects[0]) {
-        await this.handleSelectProject({ target: { value: projects[0].data.project } });
-      }
-  }
-
   handleUpdateStatus = async (bundle, uploadStatus) => {
     if (uploadStatus === UPLOADSTATES.DONE) {
       this.setState({
@@ -104,7 +95,27 @@ export default class XnatView extends Component {
     }
   }
 
-  handleSelectProject = async (event) => {
+  initSelected = async (xnat) => {
+    const projects = await xnat.getProjects();
+    this.setState({ projects });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialProject = urlParams.get('project');
+    const initialSubject = urlParams.get('subject');
+    const initialExperiment = urlParams.get('experiment');
+
+    if (initialProject) {
+      await this.handleSelectProject(
+        { target: { value: initialProject } },
+        initialSubject,
+        initialExperiment,
+      );
+    } else if (projects[0]) {
+      await this.handleSelectProject({ target: { value: projects[0].data.project } });
+    }
+  }
+
+  handleSelectProject = async (event, initialSubject, initialExperiment) => {
     const project = this.state.projects.find(p => p.data.project === event.target.value);
     const subjects = await project.getSubjects();
 
@@ -113,12 +124,17 @@ export default class XnatView extends Component {
       subjects: subjects,
     });
 
-    if (subjects[0]) {
+    if (initialSubject) {
+      await this.handleSelectSubject(
+        { target: { value: initialSubject } },
+        initialExperiment,
+      );
+    } else if (subjects[0]) {
       await this.handleSelectSubject({ target: { value: subjects[0].data.subject } });
     }
   }
 
-  handleSelectSubject = async (event) => {
+  handleSelectSubject = async (event, initialExperiment) => {
     const subject = this.state.subjects.find(s => s.data.subject === event.target.value);
     const experiments = await subject.getExperiments();
 
@@ -127,7 +143,9 @@ export default class XnatView extends Component {
       experiments: experiments
     });
 
-    if (experiments[0]) {
+    if (initialExperiment) {
+      await this.handleSelectExperiment({ target: { value: initialExperiment } });
+    } else if (experiments[0]) {
       await this.handleSelectExperiment({ target: { value: null } })
     }
   }
@@ -212,7 +230,7 @@ export default class XnatView extends Component {
               <label>Project</label>
               <select name="project" onChange={this.handleSelectProject}>
                 {_.map(projects, p =>
-                  <option key={p.data.project} value={p.data.project}>{p.data.project_name}</option>
+                  <option key={p.data.project} value={p.data.project} selected={p.data.project === _.get(selectedProject, 'data.project')}>{p.data.project_name}</option>
                 )};
               </select>
             </div>
@@ -220,7 +238,7 @@ export default class XnatView extends Component {
               <label>Subject</label>
               <select name="subject" onChange={this.handleSelectSubject}>
                 {_.map(subjects, s =>
-                  <option key={s.data.subject} value={s.data.subject}>{s.data.subject_label}</option>
+                  <option key={s.data.subject} value={s.data.subject} selected={s.data.subject === _.get(selectedSubject, 'data.subject')}>{s.data.subject_label}</option>
                 )};
               </select>
             </div>
@@ -229,7 +247,7 @@ export default class XnatView extends Component {
               <select name="experiment" onChange={this.handleSelectExperiment}>
                 <option key="new" value={null}>Create new experiment</option>
                 {_.map(experiments, e =>
-                  <option key={e.data.experiment} value={e.data.experiment}>{e.data.experiment_label}</option>
+                  <option key={e.data.experiment} value={e.data.experiment} selected={e.data.experiment === _.get(selectedExperiment, 'data.experiment')}>{e.data.experiment_label}</option>
                 )};
               </select>
             </div>
