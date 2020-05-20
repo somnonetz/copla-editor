@@ -243,9 +243,9 @@ export default class XnatView extends Component {
               </select>
             </div>
             <div class="select-box">
-              <label>Experiment</label>
+              <label>Sleep Research Session</label>
               <select name="experiment" onChange={this.handleSelectExperiment}>
-                <option key="new" value={null}>Create new experiment</option>
+                <option key="new" value={null}>Create New Session</option>
                 {_.map(experiments, e =>
                   <option key={e.data.experiment} value={e.data.experiment} selected={e.data.experiment === _.get(selectedExperiment, 'data.experiment')}>{e.data.experiment_label}</option>
                 )};
