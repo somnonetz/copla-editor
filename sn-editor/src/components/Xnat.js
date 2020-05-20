@@ -252,7 +252,7 @@ export default class XnatView extends Component {
               </select>
             </div>
             <div class="select-box">
-              <label>New Experiment Name</label>
+              <label>New Session Name</label>
               <input id="experiment-name" name="experimentName" onChange={this.handleInputExperimentName}></input>
             </div>
           </div>
