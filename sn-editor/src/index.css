@@ -35,3 +35,43 @@
 .select-box select, .select-box input {
   width: 100%;
 }
+
+.infobox {
+  z-index: 10;
+  position: absolute;
+  top: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rem;
+  padding: 1rem;
+  max-width: calc(100% - 4rem);
+  min-height: calc(100vh - 8rem);
+  background: #eee;
+}
+
+.infobox .toggleInfobox {
+  position: absolute;
+  top: 1px;
+  right: 0.5rem;
+  background: none;
+  font-size: 32px;
+  color: #333;
+}
+
+.infobox table {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.infobox table.fixed {
+  table-layout: fixed;
+}
+
+.infobox td {
+  padding: 0.5rem;
+  word-break: break-all;
+}
+
+.infobox tr:nth-child(odd) td {
+  background: #ddd;
+}

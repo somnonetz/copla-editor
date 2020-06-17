@@ -35,14 +35,14 @@ nr of samples[2] * integer : second signal
 nr of samples[ns] * integer : last signal
 */
 
-import FileResource from 'utils/FileResource';
-import WebResource from 'utils/WebResource';
+import FileResource from './FileResource';
+import WebResource from './WebResource';
+import { channelNameMap, channelNumberMap } from './EdfChannelMaps.js';
 
 const STATIC_HEADER_SIZE = 256;
 const SAMPLE_SIZE = 2;
 
 export default class EDF {
-
   header = {
     version: null,
     patientIdentification: null,
@@ -66,14 +66,11 @@ export default class EDF {
   setResource(file) {
     if (typeof file.read === 'function') {
       this.file = file;
-    }
-    else if (typeof file === 'string') {
+    } else if (typeof file === 'string') {
       this.file = new WebResource(file);
-    }
-    else if (file instanceof File) {
+    } else if (file instanceof File) {
       this.file = new FileResource(file);
-    }
-    else {
+    } else {
       throw new Error('File type not supported');
     }
   }
@@ -88,7 +85,7 @@ export default class EDF {
   }
 
   async readStaticHeader() {
-    const header = this.header;
+    const { header } = this;
     const options = {
       from: 0,
       till: STATIC_HEADER_SIZE,
@@ -111,16 +108,25 @@ export default class EDF {
     const t = header.startTime;
     const year = +d.slice(6, 8);
     header.start = new Date(
-      (year > 30 ? '19' : '20') + year, +d.slice(3, 5) - 1, d.slice(0, 2), // date
-      t.slice(0, 2), t.slice(3, 5), t.slice(6, 8), // time
+      (year > 30 ? '19' : '20') + year,
+      +d.slice(3, 5) - 1,
+      d.slice(0, 2), // date
+      t.slice(0, 2),
+      t.slice(3, 5),
+      t.slice(6, 8), // time
     );
-    header.end = new Date(+header.start + header.numberOfDataRecords * header.recordDurationTime * 1000);
+    header.end = new Date(
+      +header.start +
+        header.numberOfDataRecords * header.recordDurationTime * 1000,
+    );
   }
 
   async readDynamicHeader() {
-    const header = this.header;
-    const numberOfSignals = header.numberOfSignals;
-    const channels = Array(numberOfSignals).fill(1).map((v, index) => ({ index }));
+    const { header } = this;
+    const { numberOfSignals } = header;
+    const channels = Array(numberOfSignals)
+      .fill(1)
+      .map((v, index) => ({ index }));
     const options = {
       from: STATIC_HEADER_SIZE,
       till: STATIC_HEADER_SIZE + numberOfSignals * 256,
@@ -148,6 +154,12 @@ export default class EDF {
       }
     });
 
+    // associate standard labels and indexes
+    channels.forEach(channel => {
+      channel.standardLabel = channelNameMap[channel.label] || channel.label;
+      channel.standardIndex = channelNumberMap[channel.standardLabel] || 0;
+    });
+
     header.channels = channels;
     header.recordIndicies = [];
     // header.recordSampleIndicies = [0]; // maybe nice to have but not used
@@ -160,7 +172,7 @@ export default class EDF {
   }
 
   async read(fromMs, tillMs) {
-    const header = this.header;
+    const { header } = this;
     // Map timestamps to records
     const duration = header.recordDurationTime * 1000;
     const fromBlock = Math.floor(fromMs / duration);
@@ -187,11 +199,11 @@ export default class EDF {
     let offset;
 
     for (i = 0; i < header.numberOfSignals; i++) {
-      const numberOfSamples = header.channels[i].numberOfSamples;
+      const { numberOfSamples } = header.channels[i];
       data[i] = new Int16Array(numberOfBlocks * numberOfSamples);
 
       for (j = 0; j < numberOfBlocks; j++) {
-        offset = header.recordIndicies[i] + (j * header.recordSize);
+        offset = header.recordIndicies[i] + j * header.recordSize;
         part = rawData.subarray(offset, offset + numberOfSamples);
         // console.log('numberOfBlocks', i, j, offset, part);
         data[i].set(part, numberOfSamples * j);
@@ -201,23 +213,27 @@ export default class EDF {
     return data;
   }
 
-
   // --------------------------------------------------
   // Data Access
   // --------------------------------------------------
-
 
   /**
    * Get Data for time interval
    * @param  {int}    from    relative Position in milliseconds
    * @param  {int}    till    relative Position in milliseconds
+   * @param  {int}    frequency    number of values per seconds
    */
   async getData(options = {}) {
     if (!this.didReadHeader) await this.readHeader();
 
-    const header = this.header;
+    console.log('getData', options);
+
+    const { header } = this;
     const from = Math.max(options.from || 0, 0);
-    const till = Math.min(options.till || 0, header.numberOfDataRecords * header.recordDurationTime * 1000); // bis ende
+    const till = Math.min(
+      options.till || 0,
+      header.numberOfDataRecords * header.recordDurationTime * 1000,
+    ); // bis ende
 
     if (till <= from) throw new Error('Bad interval');
 
@@ -230,17 +246,21 @@ export default class EDF {
 
     for (let i = 0; i < data.length; i++) {
       const channel = header.channels[i];
-      const physicalMinimum = channel.physicalMinimum;
-      const digitalMinimum = channel.digitalMinimum;
+      const { physicalMinimum, digitalMinimum } = channel;
       const physicalRange = channel.physicalMaximum - physicalMinimum + 1;
       const digitalRange = channel.digitalMaximum - digitalMinimum + 1;
       const yScale = physicalRange / digitalRange;
-      const xScale = 1000 * header.recordDurationTime / channel.numberOfSamples;
+      const xScale =
+        (1000 * header.recordDurationTime) / channel.numberOfSamples;
       const decimation = options.frequency
-        ? (channel.numberOfSamples / header.recordDurationTime / options.frequency | 0) || 1
+        ? (channel.numberOfSamples /
+            header.recordDurationTime /
+            options.frequency) |
+            0 || 1
         : 1;
       const date = index => +header.start + from + index * xScale;
-      const getValue = index => (index - digitalMinimum) * yScale + physicalMinimum;
+      const getValue = index =>
+        (index - digitalMinimum) * yScale + physicalMinimum;
 
       // console.log('data', i, { length: data[i].length, decimation });
 
@@ -254,8 +274,7 @@ export default class EDF {
             /*  */ [], // empty min / max as there is no min / max
           ]);
         }
-      }
-      else {
+      } else {
         let min;
         let max;
         let avg = 0; // TODO Median wäre besser als Average
@@ -270,8 +289,7 @@ export default class EDF {
           if (j === 0) {
             // initially we don't have enough data to show a range
             buffer[i].push([date(j), value, []]);
-          }
-          else if (j % decimation === 0) {
+          } else if (j % decimation === 0) {
             buffer[i].push([date(j), avg, [min, max]]);
             min = undefined;
             max = undefined;
@@ -284,5 +302,4 @@ export default class EDF {
     console.timeEnd('\t\tParse data');
     return buffer;
   }
-
 }

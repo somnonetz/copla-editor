@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import queryString from 'query-string';
 import EDF from 'components/EDF-View';
+import EdfInfoBox from 'components/EdfInfoBox';
 import Controls from 'components/Controls';
 import Sidebar from 'components/Sidebar';
 import XNAT from 'components/Xnat';
@@ -15,6 +16,7 @@ export default class App extends Component {
     activeBundle: null,
     showSidebar: true,
     loggedIn: false,
+    isInfoboxVisible: false,
   }
 
   proxy = { onClick() {} }
@@ -100,6 +102,11 @@ export default class App extends Component {
     this.setState({ showSidebar });
   }
 
+  toggleInfobox = () => {
+    const { isInfoboxVisible } = this.state;
+    this.setState({ isInfoboxVisible: !isInfoboxVisible });
+  };
+
   renderEditor() {
     const { edf, artifacts } = this.state.activeBundle || {};
     const sidebarWidth = this.state.showSidebar ? '20rem' : '0rem';
@@ -135,15 +142,28 @@ export default class App extends Component {
   }
 
   render() {
+    const { edf } = this.state.activeBundle || {};
     const hasBundle = this.state.bundles.length > 0;
     const hasActiveBundle = !!this.state.activeBundle;
     const containerClass = `container ${hasBundle ? 'full-width' : ''}`;
+    const isInfoboxVisible = this.state.isInfoboxVisible;
 
     return (
       <div className={containerClass}>
         <header className="site-header dashed-bottom">
           <a href="." className="site-title">copla-editor</a>
-          {hasActiveBundle && <Controls proxy={this.proxy} />}
+          {hasActiveBundle && (
+            <nav>
+              <Controls proxy={this.proxy} />
+              <button
+                className="btn btn-default btn-ghost"
+                onClick={this.toggleInfobox}
+                title="Zeige Dateiinfos"
+              >
+                ℹ️️
+              </button>
+            </nav>
+          )}
           {hasBundle && this.renderDropzone('site-nav')}
         </header>
 
@@ -161,6 +181,13 @@ export default class App extends Component {
         <footer className="site-footer dashed-top">
           Gitlab: <a href="https://git.tools.f4.htw-berlin.de/somnonetz/copla-editor">somnonetz/copla-editor</a>
         </footer>
+
+        {isInfoboxVisible && (
+          <EdfInfoBox
+            edf={edf}
+            onClose={this.toggleInfobox}
+          />
+        )}
       </div>
     );
   }
