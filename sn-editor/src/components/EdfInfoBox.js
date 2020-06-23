@@ -1,20 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { formatSize } from '../utils/utils';
-
-const edfHeader = [
-  'numberOfSignals',
-  'start',
-  'end',
-  'patientIdentification',
-  'recordIdentification',
-  'recordHeaderByteSize',
-  'numberOfDataRecords',
-  'recordDurationTime',
-  'recordSize',
-  'recordSampleSize',
-];
+import { edfHeaderKeys as edfHeader } from './constants'
 
 const EdfInfoBox = ({ edf, onClose }) => (
   <div className="infobox">

@@ -5,16 +5,14 @@ import Login from 'components/Login';
 import Upload from 'components/Upload';
 import XNAT from 'xnat/XNAT';
 import { host, autologin, credentials } from 'config';
-
-const UPLOADSTATES = {
-  DONE: 6,
-};
+import { uploadStates as UPLOADSTATES } from './constants'
 
 export default class XnatView extends Component {
 
   static propTypes = {
     onLoginChange: PropTypes.func,
     onUpdateStatus: PropTypes.func,
+    onUpdateXnatUrl: PropTypes.func,
     onNewData: PropTypes.func,
     bundles: PropTypes.array,
   }
@@ -23,6 +21,7 @@ export default class XnatView extends Component {
     onLoginChange: {},
     onNewData: {},
     onUpdateStatus: {},
+    onUpdateXnatUrl: {},
     bundles: [],
   }
 
@@ -207,54 +206,50 @@ export default class XnatView extends Component {
     }
 
     return (
-      <div className="xnat">
-
-        <p className="alert alert-success"><strong>XNAT</strong> Logged in{username && <span> as {username}</span>}</p> 
-
-        {_.map(bundles, bundle =>
-          <Upload
-            key={bundle.edf.file.name}
-            bundle={bundle}
-            onFinish={onNewData}
-            project={selectedProject}
-            subject={selectedSubject}
-            experiment={selectedExperiment}
-            experimentName={experimentName}
-            onUpdateStatus={this.handleUpdateStatus}
-          />
-        )}
-
-        <div className="card">
-          <div className="card-body">
-            <div class="select-box">
-              <label>Project</label>
-              <select name="project" onChange={this.handleSelectProject}>
-                {_.map(projects, p =>
-                  <option key={p.data.project} value={p.data.project} selected={p.data.project === _.get(selectedProject, 'data.project')}>{p.data.project_name}</option>
-                )};
-              </select>
-            </div>
-            <div class="select-box">
-              <label>Subject</label>
-              <select name="subject" onChange={this.handleSelectSubject}>
-                {_.map(subjects, s =>
-                  <option key={s.data.subject} value={s.data.subject} selected={s.data.subject === _.get(selectedSubject, 'data.subject')}>{s.data.subject_label}</option>
-                )};
-              </select>
-            </div>
-            <div class="select-box">
-              <label>Sleep Research Session</label>
-              <select name="experiment" onChange={this.handleSelectExperiment}>
-                <option key="new" value={null}>Create New Session</option>
-                {_.map(experiments, e =>
-                  <option key={e.data.experiment} value={e.data.experiment} selected={e.data.experiment === _.get(selectedExperiment, 'data.experiment')}>{e.data.experiment_label}</option>
-                )};
-              </select>
-            </div>
-            <div class="select-box">
-              <label>New Session Name</label>
-              <input id="experiment-name" name="experimentName" onChange={this.handleInputExperimentName}></input>
-            </div>
+      <div className="xnat card card-success">
+        <div class="card-header"><strong>XNAT</strong> Logged in{username && <span> as {username}</span>}</div> 
+        <div className="card-body">
+          {_.map(bundles, bundle =>
+            <Upload
+              key={bundle.edf.file.name}
+              bundle={bundle}
+              onFinish={onNewData}
+              project={selectedProject}
+              subject={selectedSubject}
+              experiment={selectedExperiment}
+              experimentName={experimentName}
+              onUpdateStatus={this.handleUpdateStatus}
+              onUpdateXnatUrl={this.props.onUpdateXnatUrl}
+            />
+          )}
+          <div class="select-box">
+            <label>Project</label>
+            <select name="project" onChange={this.handleSelectProject}>
+              {_.map(projects, p =>
+                <option key={p.data.project} value={p.data.project} selected={p.data.project === _.get(selectedProject, 'data.project')}>{p.data.project_name}</option>
+              )};
+            </select>
+          </div>
+          <div class="select-box">
+            <label>Subject</label>
+            <select name="subject" onChange={this.handleSelectSubject}>
+              {_.map(subjects, s =>
+                <option key={s.data.subject} value={s.data.subject} selected={s.data.subject === _.get(selectedSubject, 'data.subject')}>{s.data.subject_label}</option>
+              )};
+            </select>
+          </div>
+          <div class="select-box">
+            <label>Sleep Research Session</label>
+            <select name="experiment" onChange={this.handleSelectExperiment}>
+              <option key="new" value={null}>Create New Session</option>
+              {_.map(experiments, e =>
+                <option key={e.data.experiment} value={e.data.experiment} selected={e.data.experiment === _.get(selectedExperiment, 'data.experiment')}>{e.data.experiment_label}</option>
+              )};
+            </select>
+          </div>
+          <div class="select-box">
+            <label>New Session Name</label>
+            <input id="experiment-name" name="experimentName" onChange={this.handleInputExperimentName}></input>
           </div>
         </div>
       </div>

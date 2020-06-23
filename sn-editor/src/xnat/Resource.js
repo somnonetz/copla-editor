@@ -36,6 +36,11 @@ export default class Resource {
     return http.getJSON(utils.tpl(url, this.data));
    }
 
+   getFileUrl(file) {
+      const url = `{parentURL}/resources/{resource}/files/${file.name}`;
+      return utils.tpl(url, this.data);
+   }
+
    createFile(file, onProgress) {
       return new Promise((resolve, reject) => {
         const url = `{parentURL}/resources/{resource}/files/${file.name}`;

@@ -75,3 +75,7 @@
 .infobox tr:nth-child(odd) td {
   background: #ddd;
 }
+
+.xnat, .asclepios {
+  margin: 1rem 0;
+}

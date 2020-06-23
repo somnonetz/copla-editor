@@ -8,16 +8,7 @@ import Subject from 'xnat/Subject';
 import { sleep } from 'utils/utils';
 import { host, doReconstruction, pipelineName, pipelineParams } from 'config';
 
-const STATES = {
-  READY: 0,
-  DESTINED: 1,
-  UPLOADING: 2,
-  UPLOADED: 3,
-  POLLING: 4,
-  PREPARING: 5,
-  DONE: 6,
-  FAILED: 7,
-};
+import { uploadStates as STATES } from './constants'
 
 export default class Upload extends Component {
 
@@ -25,6 +16,7 @@ export default class Upload extends Component {
     bundle: PropTypes.object.isRequired,
     onFinish: PropTypes.func,
     onUpdateStatus: PropTypes.func,
+    onUpdateXnatUrl: PropTypes.func,
     project: PropTypes.instanceOf(Project),
     subject: PropTypes.instanceOf(Subject),
     experiment: PropTypes.instanceOf(Experiment),
@@ -33,6 +25,7 @@ export default class Upload extends Component {
   static defaultProps = {
     onFinish: {},
     onUpdateStatus: {},
+    onUpdateXnatUrl: {},
   }
 
   state = {
@@ -45,6 +38,11 @@ export default class Upload extends Component {
     this.props.bundle.uploadStatus = uploadStatus;
     this.props.onUpdateStatus(this.props.bundle, uploadStatus);
     this.setState({ uploadStatus });
+  }
+
+  updateXnatUrl = (xnatUrl) => {
+    this.props.bundle.xnatUrl = xnatUrl;
+    this.props.onUpdateXnatUrl(this.props.bundle, xnatUrl);
   }
 
   finish = (error) => {
@@ -95,8 +93,7 @@ export default class Upload extends Component {
       // upload edf file
       const file = this.props.bundle.edf.file.file;
       await resource.createFile(file, progress => this.setState({ progress }));
-
-      this.updateStatus(STATES.DONE);
+      this.updateXnatUrl(resource.getFileUrl(file));
 
       if (doReconstruction) {
         // start pipeline
@@ -109,6 +106,8 @@ export default class Upload extends Component {
 
         await this.props.onFinish(newBundle);
       }
+
+      this.updateStatus(STATES.DONE);
     }
     catch (e) {
       console.error(e);
