@@ -19,13 +19,23 @@ export default class AsclepiosView extends Component {
     super(props);
 
     this.state = {
-      keyG: '123',
-      kenc: '456',
+      keyG: '',
+      kenc: '',
     };
   };
 
   getEdfHeaders = (bundle) => {
-    return _.pick(bundle.edf.header, edfHeaderKeys);
+    const headers = _.pick(bundle.edf.header, edfHeaderKeys);
+    bundle.edf.header.channels.forEach(channel => {
+      headers['channel_' + channel.index + '_' + 'label'] = channel.label;
+      headers['channel_' + channel.index + '_' + 'physicalDimension'] = channel.physicalDimension;
+      headers['channel_' + channel.index + '_' + 'numberOfSamples'] = channel.numberOfSamples;
+      headers['channel_' + channel.index + '_' + 'digitalMinimum'] = channel.digitalMinimum;
+      headers['channel_' + channel.index + '_' + 'digitalMaximum'] = channel.digitalMaximum;
+      headers['channel_' + channel.index + '_' + 'physicalMinimum'] = channel.physicalMinimum;
+      headers['channel_' + channel.index + '_' + 'physicalMaximum'] = channel.physicalMaximum;
+    })
+    return headers;
   }
 
   handleInputKeyG = async (event) => {
@@ -41,8 +51,8 @@ export default class AsclepiosView extends Component {
   }
 
   startUpload = async (bundle) => {
-    const data = {type: 'snet01:psgScanData', ...this.getEdfHeaders(bundle)};
-    return uploadData(this.getEdfHeaders(bundle), bundle.xnatUrl, this.state.keyG, this.state.kenc);
+    const data = {type: 'snet01:psgScanData', 'url': bundle.xnatUrl, ...this.getEdfHeaders(bundle)};
+    return uploadData(data, bundle.xnatUrl, this.state.keyG, this.state.kenc);
   }
 
   render() {
