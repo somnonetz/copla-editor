@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { edfHeaderKeys as edfHeader } from './constants'
+import { edfHeaderKeys as edfHeader } from '../constants'
 
 const EdfInfoBox = ({ edf, onClose }) => (
   <div className="infobox">

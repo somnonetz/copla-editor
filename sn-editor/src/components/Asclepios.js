@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { uploadData } from 'asclepios-sse-client';
-import { edfHeaderKeys, uploadStates as STATES } from './constants'
+import { edfHeaderKeys, uploadStates as STATES } from '../constants'
 
 
 export default class AsclepiosView extends Component {

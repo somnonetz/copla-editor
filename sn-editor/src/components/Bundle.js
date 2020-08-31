@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { uploadStates as STATES } from './constants'
+import { uploadStates as STATES } from '../constants'
 
 export default class Bundle extends Component {
 

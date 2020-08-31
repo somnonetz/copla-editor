@@ -5,14 +5,13 @@ import Login from 'components/Login';
 import Upload from 'components/Upload';
 import XNAT from 'xnat/XNAT';
 import { host, autologin, credentials } from 'config';
-import { uploadStates as UPLOADSTATES } from './constants'
+import { uploadStates as UPLOADSTATES } from '../constants'
 
 export default class XnatView extends Component {
 
   static propTypes = {
     onLoginChange: PropTypes.func,
     onUpdateStatus: PropTypes.func,
-    onUpdateXnatUrl: PropTypes.func,
     onNewData: PropTypes.func,
     bundles: PropTypes.array,
   }
@@ -21,7 +20,6 @@ export default class XnatView extends Component {
     onLoginChange: {},
     onNewData: {},
     onUpdateStatus: {},
-    onUpdateXnatUrl: {},
     bundles: [],
   }
 
@@ -219,7 +217,6 @@ export default class XnatView extends Component {
               experiment={selectedExperiment}
               experimentName={experimentName}
               onUpdateStatus={this.handleUpdateStatus}
-              onUpdateXnatUrl={this.props.onUpdateXnatUrl}
             />
           )}
           <div class="select-box">

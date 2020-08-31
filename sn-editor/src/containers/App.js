@@ -6,7 +6,6 @@ import EdfInfoBox from 'components/EdfInfoBox';
 import Controls from 'components/Controls';
 import Sidebar from 'components/Sidebar';
 import XNAT from 'components/Xnat';
-import Asclepios from 'components/Asclepios';
 import FileBrowser from 'components/FileBrowser';
 import Bundle from 'utils/ResourceBundle';
 
@@ -93,11 +92,6 @@ export default class App extends Component {
     this.setState({ bundles: this.state.bundles });
   }
 
-  handleUpdateXnatUrl = (bundle, xnatUrl) => {
-    bundle.xnatUrl = xnatUrl;
-    this.setState({ bundles: this.state.bundles });
-  }
-
   handleNewData = async (files) => {
     const bundle = await new Bundle(files).load;
     const bundles = [...this.state.bundles, bundle];
@@ -128,10 +122,6 @@ export default class App extends Component {
             onLoginChange={this.handleLoginChange}
             onNewData={this.handleNewData}
             onUpdateStatus={this.handleUpdateStatus}
-            onUpdateXnatUrl={this.handleUpdateXnatUrl}
-            bundles={uploadBundles}
-          />
-          <Asclepios
             bundles={uploadBundles}
           />
           <FileBrowser

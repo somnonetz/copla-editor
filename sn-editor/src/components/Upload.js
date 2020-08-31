@@ -6,9 +6,10 @@ import Experiment from 'xnat/Experiment';
 import Project from 'xnat/Project';
 import Subject from 'xnat/Subject';
 import { sleep } from 'utils/utils';
-import { host, doReconstruction, pipelineName, pipelineParams } from 'config';
+import AsclepiosResource from '../asclepios/Resource';
+import { host, doReconstruction, doAsclepiosUpload, pipelineName, pipelineParams } from 'config';
 
-import { uploadStates as STATES } from './constants'
+import { uploadStates as STATES } from '../constants'
 
 export default class Upload extends Component {
 
@@ -16,7 +17,6 @@ export default class Upload extends Component {
     bundle: PropTypes.object.isRequired,
     onFinish: PropTypes.func,
     onUpdateStatus: PropTypes.func,
-    onUpdateXnatUrl: PropTypes.func,
     project: PropTypes.instanceOf(Project),
     subject: PropTypes.instanceOf(Subject),
     experiment: PropTypes.instanceOf(Experiment),
@@ -25,7 +25,6 @@ export default class Upload extends Component {
   static defaultProps = {
     onFinish: {},
     onUpdateStatus: {},
-    onUpdateXnatUrl: {},
   }
 
   state = {
@@ -37,11 +36,6 @@ export default class Upload extends Component {
   updateStatus = (uploadStatus) => {
     this.setState({ uploadStatus });
     this.props.onUpdateStatus(this.props.bundle, uploadStatus);
-  }
-
-  updateXnatUrl = (experiment) => {
-    const xnatUrl = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`
-    this.props.onUpdateXnatUrl(this.props.bundle, xnatUrl);
   }
 
   finish = (error) => {
@@ -92,7 +86,13 @@ export default class Upload extends Component {
       // upload edf file
       const file = this.props.bundle.edf.file.file;
       await resource.createFile(file, progress => this.setState({ progress }));
-      this.updateXnatUrl(experiment);
+
+      if (doAsclepiosUpload) {
+        const path = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`
+        const headers = await this.props.bundle.edf.readHeaderFlat();
+        const asclepiosResource = new AsclepiosResource({ type: 'snet01:psgScanData', url: path, ...headers});
+        await asclepiosResource.create(progress => this.setState({ progress }));
+      }
 
       if (doReconstruction) {
         // start pipeline
