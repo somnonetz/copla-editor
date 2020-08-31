@@ -35,13 +35,12 @@ export default class Upload extends Component {
   }
 
   updateStatus = (uploadStatus) => {
-    this.props.bundle.uploadStatus = uploadStatus;
-    this.props.onUpdateStatus(this.props.bundle, uploadStatus);
     this.setState({ uploadStatus });
+    this.props.onUpdateStatus(this.props.bundle, uploadStatus);
   }
 
-  updateXnatUrl = (xnatUrl) => {
-    this.props.bundle.xnatUrl = xnatUrl;
+  updateXnatUrl = (experiment) => {
+    const xnatUrl = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`
     this.props.onUpdateXnatUrl(this.props.bundle, xnatUrl);
   }
 
@@ -93,7 +92,7 @@ export default class Upload extends Component {
       // upload edf file
       const file = this.props.bundle.edf.file.file;
       await resource.createFile(file, progress => this.setState({ progress }));
-      this.updateXnatUrl(resource.getFileUrl(file));
+      this.updateXnatUrl(experiment);
 
       if (doReconstruction) {
         // start pipeline

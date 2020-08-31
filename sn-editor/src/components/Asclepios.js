@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _, { startCase } from 'lodash';
+import _ from 'lodash';
 import { uploadData } from 'asclepios-sse-client';
 import { edfHeaderKeys, uploadStates as STATES } from './constants'
 
@@ -27,13 +27,13 @@ export default class AsclepiosView extends Component {
   getEdfHeaders = (bundle) => {
     const headers = _.pick(bundle.edf.header, edfHeaderKeys);
     bundle.edf.header.channels.forEach(channel => {
-      headers['channel_' + channel.index + '_' + 'label'] = channel.label;
-      headers['channel_' + channel.index + '_' + 'physicalDimension'] = channel.physicalDimension;
-      headers['channel_' + channel.index + '_' + 'numberOfSamples'] = channel.numberOfSamples;
-      headers['channel_' + channel.index + '_' + 'digitalMinimum'] = channel.digitalMinimum;
-      headers['channel_' + channel.index + '_' + 'digitalMaximum'] = channel.digitalMaximum;
-      headers['channel_' + channel.index + '_' + 'physicalMinimum'] = channel.physicalMinimum;
-      headers['channel_' + channel.index + '_' + 'physicalMaximum'] = channel.physicalMaximum;
+      headers[`channel_${channel.index}_label`] = channel.label;
+      headers[`channel_${channel.index}_physicalDimension`] = channel.physicalDimension;
+      headers[`channel_${channel.index}_numberOfSamples`] = channel.numberOfSamples;
+      headers[`channel_${channel.index}_digitalMinimum`] = channel.digitalMinimum;
+      headers[`channel_${channel.index}_digitalMaximum`] = channel.digitalMaximum;
+      headers[`channel_${channel.index}_physicalMinimum`] = channel.physicalMinimum;
+      headers[`channel_${channel.index}_physicalMaximum`] = channel.physicalMaximum;
     })
     return headers;
   }
