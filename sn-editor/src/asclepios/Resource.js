@@ -13,7 +13,7 @@ export default class Resource {
 
    async create(onProgress) {
       onProgress(0);
-      uploadData(this.data, this.data.url, '123', '123');
+      uploadData(this.data, this.data.path, '123', '123');
       onProgress(100);
    }
 }

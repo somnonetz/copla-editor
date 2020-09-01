@@ -90,7 +90,7 @@ export default class Upload extends Component {
       if (doAsclepiosUpload) {
         const path = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`
         const headers = await this.props.bundle.edf.readHeaderFlat();
-        const asclepiosResource = new AsclepiosResource({ type: 'snet01:psgScanData', url: path, ...headers});
+        const asclepiosResource = new AsclepiosResource({ type: 'snet01:psgScanData', path: path, ...headers});
         await asclepiosResource.create(progress => this.setState({ progress }));
       }
 
