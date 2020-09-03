@@ -7,6 +7,7 @@
     "asclepios-sse-client": "^0.2.3",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
+    "keycloak-js": "^11.0.2",
     "lodash": "^4.17.11",
     "prop-types": "^15.6.0",
     "query-string": "^5.1.0",

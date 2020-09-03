@@ -9,9 +9,11 @@ import { sleep } from 'utils/utils';
 import AsclepiosResource from '../asclepios/Resource';
 import { host, doReconstruction, doAsclepiosUpload, pipelineName, pipelineParams } from 'config';
 
-import { uploadStates as STATES } from '../constants'
+import { uploadStates as STATES, KeycloakContext } from '../constants'
 
 export default class Upload extends Component {
+
+  static contextType = KeycloakContext;
 
   static propTypes = {
     bundle: PropTypes.object.isRequired,
@@ -91,7 +93,7 @@ export default class Upload extends Component {
         const path = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`
         const headers = await this.props.bundle.edf.readHeaderFlat();
         const asclepiosResource = new AsclepiosResource({ type: 'snet01:psgScanData', path: path, ...headers});
-        await asclepiosResource.create(progress => this.setState({ progress }));
+        await asclepiosResource.create(this.context.tokenParsed.sharedKey, this.context.tokenParsed.kenc, progress => this.setState({ progress }));
       }
 
       if (doReconstruction) {

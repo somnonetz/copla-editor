@@ -11,9 +11,9 @@ export default class Resource {
       this.data = data;
    }
 
-   async create(onProgress) {
+   async create(sharedKey, kenc, onProgress) {
       onProgress(0);
-      uploadData(this.data, this.data.path, '123', '123');
+      uploadData(this.data, this.data.path, sharedKey, kenc);
       onProgress(100);
    }
 }

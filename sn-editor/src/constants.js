@@ -1,3 +1,5 @@
+import React from 'react';
+
 const edfHeaderKeys = [
   'numberOfSignals',
   'start',
@@ -22,4 +24,6 @@ const uploadStates = {
   FAILED: 7,
 };
 
-export { edfHeaderKeys, uploadStates };
+const KeycloakContext = React.createContext();
+
+export { edfHeaderKeys, uploadStates, KeycloakContext };
