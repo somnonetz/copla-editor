@@ -7,6 +7,6 @@
     "bytes": "^3.1.0",
     "chrome-trace": "^0.2.1",
     "json-2-csv": "^3.4.1",
-    "puppeteer": "^1.12.2"
+    "puppeteer": "^1.13.0"
   }
 }
