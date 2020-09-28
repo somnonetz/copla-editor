@@ -15,7 +15,7 @@
     "react-dom": "^16.7.0",
     "react-dropzone": "^4.2.7",
     "tawian-frontend": "^2.1.4",
-    "typeface-cousine": "0.0.54"
+    "typeface-cousine": "0.0.72"
   },
   "devDependencies": {
     "react-scripts": "^2.1.2"
