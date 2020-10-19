@@ -13,11 +13,7 @@ import { doAsclepiosUpload } from './config'
 
 
 if (doAsclepiosUpload) {
-    let keycloak = new Keycloak({
-        url: `${process.env.REACT_APP_KEYCLOAK_HOST}/auth`,
-        realm: 'snet',
-        clientId: 'sn-editor',
-    });
+    let keycloak = new Keycloak('/keycloak.json');
 
     keycloak.init({onLoad: 'login-required'}).then(function(authenticated) {
         ReactDOM.render(
