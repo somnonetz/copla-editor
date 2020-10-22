@@ -1,19 +1,19 @@
 
-import { uploadData } from 'asclepios-sse-client';
+import { uploadData, encryptUploadSearchableBlob } from 'asclepios-sse-client';
 
 export default class Resource {
 
-   constructor(data) {
-      this.initialize(data);
-   }
-
-   initialize(data) {
-      this.data = data;
-   }
-
-   async create(sharedKey, kenc, onProgress) {
+   async create(file, headers, path, type, sharedKey, kenc, onProgress) {
       onProgress(0);
-      uploadData(this.data, this.data.path, sharedKey, kenc);
-      onProgress(100);
+
+      var reader = new FileReader();
+
+      reader.onload = (event) => {
+         var blobData = new Blob([new Uint8Array(event.target.result)], { type });
+         encryptUploadSearchableBlob(blobData, path, { type, ...headers }, path, sharedKey, kenc);
+         onProgress(100);
+      };
+
+      reader.readAsArrayBuffer(file);
    }
 }

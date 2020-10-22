@@ -84,16 +84,22 @@ export default class Upload extends Component {
       });
 
       const resource = await scan.createResource({ resource: 'EDF' });
-
-      // upload edf file
       const file = this.props.bundle.edf.file.file;
-      await resource.createFile(file, progress => this.setState({ progress }));
 
       if (doAsclepiosUpload) {
-        const path = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`
         const headers = await this.props.bundle.edf.readHeaderFlat();
-        const asclepiosResource = new AsclepiosResource({ type: 'snet01:psgScanData', path: path, ...headers});
-        await asclepiosResource.create(this.context.tokenParsed.sharedKey, this.context.tokenParsed.kenc, progress => this.setState({ progress }));
+        const path = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`;
+        const sharedKey = this.context.tokenParsed.sharedKey;
+        const kenc = this.context.tokenParsed.kenc;
+
+        const asclepiosResource = new AsclepiosResource();
+        await asclepiosResource.create(file, headers, path, 'snet01:psgScanData', sharedKey, kenc, progress => {
+          this.setState({ progress });
+          if (progress === 100) this.updateStatus(STATES.DONE);
+        });
+      } else {
+        // upload file
+        await resource.createFile(file, progress => this.setState({ progress }));
       }
 
       if (doReconstruction) {
@@ -106,9 +112,9 @@ export default class Upload extends Component {
         this.updateStatus(STATES.PREPARING);
 
         await this.props.onFinish(newBundle);
+        this.updateStatus(STATES.DONE);
       }
 
-      this.updateStatus(STATES.DONE);
     }
     catch (e) {
       console.error(e);
