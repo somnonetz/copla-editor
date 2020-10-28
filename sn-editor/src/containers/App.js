@@ -1,15 +1,20 @@
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import queryString from 'query-string';
-import EDF from 'components/EDF-View';
+import EDFView from 'components/EDF-View';
 import EdfInfoBox from 'components/EdfInfoBox';
 import Controls from 'components/Controls';
 import Sidebar from 'components/Sidebar';
 import XNAT from 'components/Xnat';
 import FileBrowser from 'components/FileBrowser';
 import Bundle from 'utils/ResourceBundle';
+import EDF from 'utils/EDF';
+import AsclepiosResource from 'asclepios/Resource'
+import { KeycloakContext } from '../constants'
 
 export default class App extends Component {
+
+  static contextType = KeycloakContext;
 
   state = {
     bundles: [],
@@ -25,7 +30,15 @@ export default class App extends Component {
     const params = queryString.parse(window.location.search);
     const edf = params.edf;
     const artifacts = params.artifacts;
-    if (edf) {
+    const asclepiosPath = params.asclepiosPath;
+
+    if (asclepiosPath) {
+      const asclepiosResource = new AsclepiosResource(asclepiosPath);
+      const file = await asclepiosResource.read(this.context.tokenParsed.kenc)
+      console.log(file);
+      const bundle = await new Bundle({ edf: new EDF(file), artifacts }).load;
+      this.setState({ bundles: [bundle], activeBundle: bundle });
+    } else if (edf) {
       const bundle = await new Bundle({ edf, artifacts }).load;
       this.setState({ bundles: [bundle], activeBundle: bundle });
     }
@@ -133,7 +146,7 @@ export default class App extends Component {
         </Sidebar>
         <div className="edf-wrapper" style={{ maxWidth: `calc(100% - ${sidebarWidth})` }}>
           {edf
-            ? <EDF key={edf.file.name} edf={edf} artifacts={artifacts} controls={this.proxy} />
+            ? <EDFView key={edf.file.name} edf={edf} artifacts={artifacts} controls={this.proxy} />
             : <p className="alert alert-info">Select an EDF file to display it.</p>
           }
         </div>

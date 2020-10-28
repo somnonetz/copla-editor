@@ -64,6 +64,7 @@ export default class EDF {
   }
 
   setResource(file) {
+    console.log(file.read);
     if (typeof file.read === 'function') {
       this.file = file;
     } else if (typeof file === 'string') {
