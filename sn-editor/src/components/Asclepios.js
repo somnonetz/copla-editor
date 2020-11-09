@@ -51,7 +51,7 @@ export default class AsclepiosView extends Component {
   }
 
   startUpload = async (bundle) => {
-    const data = {type: 'snet01:psgScanData', 'url': bundle.xnatUrl, ...this.getEdfHeaders(bundle)};
+    const data = {type: 'snet02:encPsgScanData', 'url': bundle.xnatUrl, ...this.getEdfHeaders(bundle)};
     return uploadData(data, bundle.xnatUrl, this.state.keyG, this.state.kenc);
   }
 

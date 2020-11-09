@@ -60,7 +60,7 @@ export default class Upload extends Component {
       subject: subject.data.subject,
       project: project.data.project,
       experiment: this.props.experimentName,
-      type: 'snet01:sleepResearchSessionData',
+      type: 'snet02:sleepResearchSessionData',
     };
 
     return new Experiment(options);
@@ -70,35 +70,38 @@ export default class Upload extends Component {
     let error = null;
 
     try {
-      this.updateStatus(STATES.UPLOADING);
-
+      let project = this.props.project;
+      let subject = this.props.subject;
       let experiment = this.props.experiment;
+      let edf = this.props.bundle.edf; 
+      let file = edf.file.file;
+      let fileName = edf.file.name;
+
+      this.updateStatus(STATES.UPLOADING);
 
       if (!experiment) {
         experiment = await this.getExperiment().create();
       }
 
       const scan = await experiment.createScan({
-        scan: this.props.bundle.edf.file.name.replace(/\s|\./g, '_').replace(/_edf$/g, ''),
-        type: 'snet01:psgScanData'
+        scan: fileName.replace(/\s|\./g, '_').replace(/_edf$/g, ''),
+        type: 'snet02:encPsgScanData'
       });
 
-      const resource = await scan.createResource({ resource: 'EDF' });
-      const file = this.props.bundle.edf.file.file;
-
       if (doAsclepiosUpload) {
-        const headers = await this.props.bundle.edf.readHeaderFlat();
-        const path = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`;
+        const headers = await edf.readHeaderFlat();
+        const path = `${project.data.project}/${subject.data.subject}/${experiment.data.t}/${fileName}`;
         const sharedKey = this.context.tokenParsed.sharedKey;
         const kenc = this.context.tokenParsed.kenc;
 
         const asclepiosResource = new AsclepiosResource(path);
-        await asclepiosResource.create(file, headers, 'snet01:psgScanData', sharedKey, kenc, progress => {
+        await asclepiosResource.create(file, headers, 'snet02:encPsgScanData', sharedKey, kenc, progress => {
           this.setState({ progress });
           if (progress === 100) this.updateStatus(STATES.DONE);
         });
       } else {
         // upload file
+        const resource = await scan.createResource({ resource: 'EDF' });
         await resource.createFile(file, progress => this.setState({ progress }));
       }
 

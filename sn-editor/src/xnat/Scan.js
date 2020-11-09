@@ -10,7 +10,7 @@ export default class Scan extends Base {
       new: '{host}/projects/{project}/subjects/{subject}/experiments/{experiment}/scans/{scan}?{query}',
    }
 
-   type = 'snet01:psgScanData'
+   type = 'snet02:encPsgScanData'
 
    create = utils.create()
 
