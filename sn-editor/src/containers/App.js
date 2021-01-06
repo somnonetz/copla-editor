@@ -34,7 +34,7 @@ export default class App extends Component {
 
     if (asclepiosPath) {
       const asclepiosResource = new AsclepiosResource(asclepiosPath);
-      const file = await asclepiosResource.read(this.context.tokenParsed.kenc)
+      const file = await asclepiosResource.read(this.context.tokenParsed.kenc, this.context.tokenParsed.keyid)
       const bundle = await new Bundle({ edf: new EDF(file), artifacts }).load;
       this.setState({ bundles: [bundle], activeBundle: bundle });
     } else if (edf) {

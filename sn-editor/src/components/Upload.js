@@ -76,6 +76,9 @@ export default class Upload extends Component {
       let edf = this.props.bundle.edf; 
       let file = edf.file.file;
       let fileName = edf.file.name;
+      let keyid = this.context.tokenParsed.keyid;
+      let sharedKey = this.context.tokenParsed.sharedKey;
+      let kenc = this.context.tokenParsed.kenc;
 
       this.updateStatus(STATES.UPLOADING);
 
@@ -85,15 +88,14 @@ export default class Upload extends Component {
 
       const scan = await experiment.createScan({
         scan: fileName.replace(/\s|\./g, '_').replace(/_edf$/g, ''),
-        type: 'snet02:encPsgScanData'
+        type: 'snet02:encPsgScanData',
+        keyid,
       });
+
 
       if (doAsclepiosUpload) {
         const headers = await edf.readHeaderFlat();
         const path = `${project.data.project}/${subject.data.subject}/${experiment.data.t}/${fileName}`;
-        const sharedKey = this.context.tokenParsed.sharedKey;
-        const kenc = this.context.tokenParsed.kenc;
-        const keyid = this.context.tokenParsed.keyid;
 
         const asclepiosResource = new AsclepiosResource(path);
         asclepiosResource.create(file, headers, 'snet02:encPsgScanData', sharedKey, kenc, keyid, progress => {

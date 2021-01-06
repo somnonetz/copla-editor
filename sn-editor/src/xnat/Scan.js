@@ -30,6 +30,8 @@ export default class Scan extends Base {
    getQuery() {
       const type = this.data.type || this.type;
       const date = utils.getFormattedDate();
+      const keyid = this.data.keyid;
+      // return `xsiType=${type}&date=${date}&snet02:encPsgScanData/keyid=${keyid}`;
       return `xsiType=${type}&date=${date}`;
    }
 

@@ -1,5 +1,5 @@
 
-import { encryptProgressUploadBlob, downloadProgressDecryptBlob , uploadData} from 'asclepios-sse-client';
+import { encryptProgressUploadSearchableBlob, downloadProgressDecryptBlob , uploadData} from 'asclepios-sse-client';
 
 export default class SSEResource {
 
@@ -7,10 +7,10 @@ export default class SSEResource {
       this.path = path;
    }
 
-   async read(kenc) {
+   async read(kenc, keyid) {
       const name =  this.path.substring(this.path.lastIndexOf('/') + 1);
       // const blob = 
-      await downloadProgressDecryptBlob(this.path, kenc);
+      await downloadProgressDecryptBlob(this.path, kenc, keyid);
       // return new File([blob], name);
    }
 
@@ -21,8 +21,7 @@ export default class SSEResource {
 
       reader.onload = async (event) => {
          var blobData = new Blob([new Uint8Array(event.target.result)], { type });
-         // await encryptProgressUploadBlob(blobData, this.path, kenc);
-         uploadData({ type, ...headers }, this.path, sharedKey, kenc, keyid);
+         await encryptProgressUploadSearchableBlob(blobData, this.path, { type, ...headers }, this.path, sharedKey, kenc, keyid);
          onProgress(100);
       };
 
