@@ -38,6 +38,7 @@ nr of samples[ns] * integer : last signal
 import FileResource from './FileResource';
 import WebResource from './WebResource';
 import { channelNameMap, channelNumberMap } from './EdfChannelMaps.js';
+import _ from 'lodash';
 
 const STATIC_HEADER_SIZE = 256;
 const SAMPLE_SIZE = 2;
@@ -87,7 +88,8 @@ export default class EDF {
   async readHeaderFlat() {
     await this.readHeader();
 
-    let headers = []
+    let headers = _.omit(this.header, 'channels');
+
     this.header.channels.forEach(channel => {
       headers[`channel_${channel.index}_label`] = channel.label;
       headers[`channel_${channel.index}_physicalDimension`] = channel.physicalDimension;
