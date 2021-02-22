@@ -6,7 +6,7 @@
   "dependencies": {
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "prop-types": "^15.6.0",
     "query-string": "^5.1.0",
     "react": "^16.7.0",
