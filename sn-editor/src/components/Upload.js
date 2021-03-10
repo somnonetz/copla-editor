@@ -79,6 +79,7 @@ export default class Upload extends Component {
       let keyid = this.context.tokenParsed.keyid;
       let sharedKey = this.context.tokenParsed.sharedKey;
       let kenc = this.context.tokenParsed.kenc;
+      let bearerToken = this.context.token;
 
       this.updateStatus(STATES.UPLOADING);
 
@@ -98,7 +99,8 @@ export default class Upload extends Component {
         const path = `${project.data.project}/${subject.data.subject}/${experiment.data.t}/${fileName}`;
 
         const asclepiosResource = new AsclepiosResource(path);
-        asclepiosResource.create(file, headers, 'snet02:encPsgScanData', sharedKey, kenc, keyid, progress => {
+        asclepiosResource.create(file, headers, 'snet02:encPsgScanData', sharedKey, kenc, keyid, bearerToken, progress => {
+          progress = progress * 100;
           this.setState({ progress });
           if (progress === 100) this.updateStatus(STATES.DONE);
         });

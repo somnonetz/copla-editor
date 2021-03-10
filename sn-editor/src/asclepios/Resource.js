@@ -14,15 +14,25 @@ export default class SSEResource {
       // return new File([blob], name);
    }
 
-   create(file, headers, type, sharedKey, kenc, keyid, onProgress) {
+   create(file, headers, type, sharedKey, kenc, keyid, bearerToken, onProgress) {
       onProgress(0);
 
       var reader = new FileReader();
 
       reader.onload = async (event) => {
+         // await fetch('http://xnat.localhost:8084/api/v1/put', {
+         //    method: 'POST',
+         //    headers: {
+         //       'Content-Type': 'application/json',
+         //       'Authorization': 'Bearer ' + bearerToken
+         //    },
+         //    body: JSON.stringify({
+         //       "encKey": "ujfojfijaopja9387982y98u98jsojnoa08fjua0u",
+         //       "verKey": "jijiuufu84789208fnusu0ufn0j0j00js0iuuppsu"
+         //    }),
+         // });
          var blobData = new Blob([new Uint8Array(event.target.result)], { type });
-         await encryptProgressUploadSearchableBlob(blobData, this.path, { type, ...headers }, this.path, sharedKey, kenc, keyid);
-         onProgress(100);
+         await encryptProgressUploadSearchableBlob(blobData, this.path, { type, ...headers }, this.path, sharedKey, kenc, keyid, onProgress);
       };
 
       reader.readAsArrayBuffer(file);
