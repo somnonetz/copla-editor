@@ -16,7 +16,7 @@
     "simplewebrtc": "^3.0.1",
     "webrtc-adapter": "^6.1.4",
     "wildemitter": "^1.2.0",
-    "xlsx": "^0.15.6"
+    "xlsx": "^0.17.0"
   },
   "scripts": {
     "start": "react-scripts start",
