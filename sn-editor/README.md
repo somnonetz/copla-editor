@@ -9,26 +9,11 @@ Nachfolgeprojekt vom [EDF-Visualisierer](https://git.tools.f4.htw-berlin.de/somn
 
 ## Build
 
-* Create the file `src/config.js` and add something like the following:
+* Create the file `.env` and add something like the following:
 
 ```js
-const autologin = false;
-
-const host = 'http://localhost/xnat/REST';
-
-const credentials = {
-  username: 'admin',
-  password: 'admin',
-};
-
-const defaultProject = 'project1';
-const defaultSubject = 'subject1';
-const pipelineName = 'somnonetz-pipeline';
-const pipelineParams = {
-  algorithm: 'sn_getEDFHeaderdata'
-};
-
-export { autologin, host, credentials, defaultProject, defaultSubject, pipelineName, pipelineParams };
+REACT_APP_IN_BROWSER=1
+REACT_APP_XNAT_API_URL=http://localhost/xnat/REST
 ```
 
 * Then run:

@@ -6,20 +6,14 @@ import Experiment from 'xnat/Experiment';
 import Project from 'xnat/Project';
 import Subject from 'xnat/Subject';
 import { sleep } from 'utils/utils';
-import { host, doReconstruction, pipelineName, pipelineParams } from 'config';
+import AsclepiosResource from '../asclepios/Resource';
+import { host, doReconstruction, doAsclepiosUpload, pipelineName, pipelineParams } from 'config';
 
-const STATES = {
-  READY: 0,
-  DESTINED: 1,
-  UPLOADING: 2,
-  UPLOADED: 3,
-  POLLING: 4,
-  PREPARING: 5,
-  DONE: 6,
-  FAILED: 7,
-};
+import { uploadStates as STATES, KeycloakContext } from '../constants'
 
 export default class Upload extends Component {
+
+  static contextType = KeycloakContext;
 
   static propTypes = {
     bundle: PropTypes.object.isRequired,
@@ -42,9 +36,8 @@ export default class Upload extends Component {
   }
 
   updateStatus = (uploadStatus) => {
-    this.props.bundle.uploadStatus = uploadStatus;
-    this.props.onUpdateStatus(this.props.bundle, uploadStatus);
     this.setState({ uploadStatus });
+    this.props.onUpdateStatus(this.props.bundle, uploadStatus);
   }
 
   finish = (error) => {
@@ -96,7 +89,12 @@ export default class Upload extends Component {
       const file = this.props.bundle.edf.file.file;
       await resource.createFile(file, progress => this.setState({ progress }));
 
-      this.updateStatus(STATES.DONE);
+      if (doAsclepiosUpload) {
+        const path = `${this.props.project.data.project}/${this.props.subject.data.subject}/${experiment.data.experiment}/${this.props.bundle.edf.file.name}`
+        const headers = await this.props.bundle.edf.readHeaderFlat();
+        const asclepiosResource = new AsclepiosResource({ type: 'snet01:psgScanData', path: path, ...headers});
+        await asclepiosResource.create(this.context.tokenParsed.sharedKey, this.context.tokenParsed.kenc, progress => this.setState({ progress }));
+      }
 
       if (doReconstruction) {
         // start pipeline
@@ -109,6 +107,8 @@ export default class Upload extends Component {
 
         await this.props.onFinish(newBundle);
       }
+
+      this.updateStatus(STATES.DONE);
     }
     catch (e) {
       console.error(e);

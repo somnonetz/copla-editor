@@ -7,6 +7,8 @@ export default class ResourceBundle {
   artifacts = null
   load = null
   isLocal = null
+  xnatUrl = null
+
   uploadStatus = 0 // { 0: 'none', 1: 'destined', 2: 'uploading', 3: 'uploaded', 4: 'polling', 5: 'preparing' 6: 'done', 7: 'failed' }
 
   constructor({ edf, artifacts }) {
@@ -34,6 +36,4 @@ export default class ResourceBundle {
     if (!file) return;
     this.artifacts = file instanceof Artifacts ? file : new Artifacts(file);
   }
-
-
 }
