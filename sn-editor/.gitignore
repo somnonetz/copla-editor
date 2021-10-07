@@ -23,4 +23,5 @@ yarn-error.log*
 *.zip
 *.edf
 *.txt
-src/config.js
+
+.env
