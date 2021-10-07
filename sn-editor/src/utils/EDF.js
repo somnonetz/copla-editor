@@ -84,6 +84,23 @@ export default class EDF {
     return this.header;
   }
 
+  async readHeaderFlat() {
+    await this.readHeader();
+
+    let headers = []
+    this.header.channels.forEach(channel => {
+      headers[`channel_${channel.index}_label`] = channel.label;
+      headers[`channel_${channel.index}_physicalDimension`] = channel.physicalDimension;
+      headers[`channel_${channel.index}_numberOfSamples`] = channel.numberOfSamples;
+      headers[`channel_${channel.index}_digitalMinimum`] = channel.digitalMinimum;
+      headers[`channel_${channel.index}_digitalMaximum`] = channel.digitalMaximum;
+      headers[`channel_${channel.index}_physicalMinimum`] = channel.physicalMinimum;
+      headers[`channel_${channel.index}_physicalMaximum`] = channel.physicalMaximum;
+    })
+
+    return headers;
+  }
+
   async readStaticHeader() {
     const { header } = this;
     const options = {

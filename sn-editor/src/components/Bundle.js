@@ -1,12 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-
-const STATES = {
-  READY: 0,
-  DONE: 6,
-  FAILED: 7,
-};
+import { uploadStates as STATES } from '../constants'
 
 export default class Bundle extends Component {
 
