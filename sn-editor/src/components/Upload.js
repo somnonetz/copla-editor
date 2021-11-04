@@ -93,8 +93,13 @@ export default class Upload extends Component {
       const resource = await scan.createResource({ resource: 'EDF' });
 
       // upload edf file
-      const file = this.props.bundle.edf.file.file;
-      await resource.createFile(file, progress => this.setState({ progress }));
+      const edfFile = this.props.bundle.edf.file.file;
+      await resource.createFile(edfFile, progress => this.setState({ progress }));
+
+      if (this.props.bundle.artifacts) {
+        const artifactsFile = this.props.bundle.artifacts.file.file
+        await resource.createFile(artifactsFile, progress => this.setState({ progress }));
+      }
 
       this.updateStatus(STATES.DONE);
 

@@ -13,10 +13,12 @@ export default class EdfView extends Component {
     edf: PropTypes.object.isRequired,
     artifacts: PropTypes.object,
     controls: PropTypes.object,
+    onNewAnnotation: PropTypes.func,
   }
 
   static defaultProps = {
     artifacts: {},
+    onNewAnnotation: {},
     controls: { onClick() {} },
   }
 
@@ -30,6 +32,8 @@ export default class EdfView extends Component {
   initialWindowWidth = 30 * 1000
   chunkWidth = 300 * 1000 // 5min / unabhängig von Frequenz, weil feste Datenmenge geladen wird, auch wenn danach Reduktion
   isLoading = false
+
+  graphs = {};
 
   constructor(props) {
     super(props);
@@ -74,7 +78,7 @@ export default class EdfView extends Component {
     (keyMap[e.which || e.keyCode] || _.noop)();
   }
 
-  handleClick = ({ action, seconds }) => {
+  handleClick = async ({ action, seconds }) => {
     switch (action) {
       case 'analyze':
 
@@ -91,9 +95,36 @@ export default class EdfView extends Component {
       case 'time':
         this.handleTimeButtons(seconds);
         break;
+      case 'saveAnnotation':
+        await this.saveAnnotation();
+        break;
       default: break;
     }
   }
+
+  saveAnnotation = async () => {
+    let header = ['Channel', 'Type', 'Start', 'End'];
+
+    let events = _.flatMap(this.graphs, graph =>
+      graph.graph.bands.map(band => [
+        graph.props.channel.label,
+        band.type,
+        band.start,
+        band.end,
+      ]),
+    );
+
+    let csv = [header, ...events]
+      .map(e => e.join(",")).join("\n");
+
+    let fileName = this.props.edf.file.name.replace(/\.edf$/, '-annotation.csv');
+
+    let enc = new TextEncoder();
+
+    let file = new File([enc.encode(csv)], fileName);
+
+    return this.props.onNewAnnotation(file);
+  };
 
   handleTimeButtons = (seconds) => {
     if (seconds === 'full') {
@@ -256,6 +287,9 @@ export default class EdfView extends Component {
     const height = this.graphWrapper
       ? this.graphWrapper.offsetHeight / channels.length
       : null;
+    const addGraph = channel => ref => {
+      this.graphs[channel.index] = ref;
+    };
 
     // return (
     //   <div key="graphs" className="graphs">
@@ -298,6 +332,7 @@ export default class EdfView extends Component {
             dateWindow={dateWindow}
             onChange={this.updateDateWindow}
             height={height}
+            ref={addGraph(channel)}
           />
         )}
       </div>

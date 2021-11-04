@@ -7,7 +7,7 @@ export default class Controls extends Component {
     proxy: PropTypes.object.isRequired,
   }
 
-  handleClicks = (ev) => {
+  handleClicks = async (ev) => {
     this.props.proxy.onClick(ev.target.dataset);
   }
 
@@ -32,7 +32,8 @@ export default class Controls extends Component {
         {/* <Button action="time" seconds="120">2m</Button> */}
         <Button action="time" seconds="300">5m</Button>
         <Button action="time" seconds="600">10m</Button>
-        <Button action="time" seconds="full">voll</Button>
+        <Button action="time" seconds="full">full</Button>
+        <Button action="saveAnnotation">Save Annotation</Button>
       </div>
     );
   }

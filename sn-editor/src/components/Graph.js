@@ -2,6 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Dygraph from '../dygraphs/dygraph';
 
+const typeMap = {
+  H: 'Hypopnoe',
+  Z: 'Zentral Apnoe',
+  G: 'Gemischte Apnoe',
+  O: 'Obstruktive Apnoe',
+};
+
 export default class Graph extends Component {
 
   static propTypes = {
@@ -128,11 +135,12 @@ export default class Graph extends Component {
 
   addPlotbands(graph, artifacts) {
     if (!artifacts) return;
-    artifacts.forEach(({ time, name }) => {
+    artifacts.forEach(({ type, starttime, endtime }) => {
+      if (type in typeMap) type = typeMap[type];
       graph.addBand({
-        start: time,
-        end: time + 1000,
-        note: name,
+        start: starttime,
+        end: endtime,
+        note: type,
         isEditable: false,
       });
     });

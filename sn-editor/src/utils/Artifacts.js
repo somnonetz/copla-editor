@@ -60,24 +60,23 @@ export default class Artifacts {
 
 }
 
-// EEG C4-A1| 21:55:41|    1|   Unusual Increase
 function parse(text) {
   const artifacts = {};
-  const types = {};
-  const headerEnd = text.indexOf('\r\n\r\n');
 
-  text
-    .slice(headerEnd)
-    .trim()
-    .split('\n')
-    .forEach((line) => {
+  let arr = text.split('\n')
+
+    arr.forEach((line) => {
+      if (line === arr[0]) return;
+
       if (!line.trim()) return;
-      const array = line.split('|').map(s => s.trim());
-      const [channel, time, epoch, name] = array;
+      const array = line.split(',').map(s => s.trim());
+      const [channel, type, starttime, endtime] = array;
+
       if (!artifacts[channel]) artifacts[channel] = [];
-      artifacts[channel].push({ time, epoch, name });
-      types[name] = (types[name] || 0) + 1;
+
+      artifacts[channel].push({ type, starttime, endtime });
+
     });
 
-  return [artifacts, types];
+  return [artifacts];
 }

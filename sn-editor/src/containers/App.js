@@ -41,7 +41,7 @@ export default class App extends Component {
     const newBundles = await Promise.all(files
       .filter(file => file.name.endsWith('.edf'))
       .map((edf) => {
-        const artifactsName = edf.name.replace(/\.edf$/, '.txt');
+        const artifactsName = edf.name.replace(/\.edf$/, '-annotation.csv');
         const artifacts = files.find(file => file.name === artifactsName);
         return new Bundle({ edf, artifacts }).load;
       }));
@@ -98,6 +98,21 @@ export default class App extends Component {
     return this.setState({ bundles });
   }
 
+  handleNewAnnotation = async (file) => {
+    const edfName = file.name.replace(/-annotation\.csv$/, '.edf')
+
+    const bundles = await Promise.all(this.state.bundles.map(async bundle => {
+      console.log(bundle.edf.file.name);
+      if (bundle.edf.file.name == edfName) {
+        return await new Bundle({edf: bundle.edf.file.file, artifacts: file}).load;
+      } else {
+        return bundle;
+      }
+    }));
+
+    return this.setState({ bundles });
+  }
+
   handleSidebarToggle = (showSidebar) => {
     this.setState({ showSidebar });
   }
@@ -133,7 +148,7 @@ export default class App extends Component {
         </Sidebar>
         <div className="edf-wrapper" style={{ maxWidth: `calc(100% - ${sidebarWidth})` }}>
           {edf
-            ? <EDF key={edf.file.name} edf={edf} artifacts={artifacts} controls={this.proxy} />
+            ? <EDF key={edf.file.name} edf={edf} artifacts={artifacts} controls={this.proxy} onNewAnnotation={this.handleNewAnnotation} />
             : <p className="alert alert-info">Select an EDF file to display it.</p>
           }
         </div>
