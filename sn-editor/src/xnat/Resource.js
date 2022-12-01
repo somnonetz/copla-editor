@@ -36,9 +36,9 @@ export default class Resource {
     return http.getJSON(utils.tpl(url, this.data));
    }
 
-   createFile(file, onProgress) {
+   createFile(file, name, onProgress) {
       return new Promise((resolve, reject) => {
-        const url = `{parentURL}/resources/{resource}/files/${file.name}`;
+        const url = `{parentURL}/resources/{resource}/files/${name}`;
         const formdata = new FormData();
         const xhr = new XMLHttpRequest(); // fetch doesn't emit progress, so we use XHR
 

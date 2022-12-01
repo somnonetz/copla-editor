@@ -36,12 +36,11 @@ export default class XnatView extends Component {
       loginMessage: '',
       xnat: {},
       projects: [],
-      selectedProject: {},
+      selectedProject: null,
       subjects: [],
-      selectedSubject: {},
+      selectedSubject: null,
       experiments: [],
       selectedExperiment: null,
-      experimentName: null,
     };
     // this.setStateAsync = state => new Promise(resolve => this.setState(state, resolve));
   }
@@ -66,9 +65,7 @@ export default class XnatView extends Component {
 
   handleUpdateStatus = async (bundle, uploadStatus) => {
     if (uploadStatus === UPLOADSTATES.DONE) {
-      this.setState({
-        experiments: await this.state.selectedSubject.getExperiments(),
-      })
+      this.initSelected(this.state.xnat)
     }
     this.props.onUpdateStatus(bundle, uploadStatus);
   }
@@ -117,56 +114,48 @@ export default class XnatView extends Component {
 
   handleSelectProject = async (event, initialSubject, initialExperiment) => {
     const project = this.state.projects.find(p => p.data.project === event.target.value);
-    const subjects = await project.getSubjects();
+
+    let subjects;
+    if (project) {
+      subjects = await project.getSubjects();
+    } else {
+      subjects = []
+    }
 
     this.setState({
       selectedProject: project,
       subjects: subjects,
     });
 
-    if (initialSubject) {
-      await this.handleSelectSubject(
-        { target: { value: initialSubject } },
-        initialExperiment,
-      );
-    } else if (subjects[0]) {
-      await this.handleSelectSubject({ target: { value: subjects[0].data.subject } });
-    }
+    await this.handleSelectSubject(
+      { target: { value: initialSubject } },
+      initialExperiment,
+    );
   }
 
   handleSelectSubject = async (event, initialExperiment) => {
     const subject = this.state.subjects.find(s => s.data.subject === event.target.value);
-    const experiments = await subject.getExperiments();
+
+    let experiments;
+    if (subject) {
+      experiments = await subject.getExperiments();
+    } else {
+      experiments = []
+    }
 
     this.setState({
       selectedSubject: subject,
       experiments: experiments
     });
 
-    if (initialExperiment) {
-      await this.handleSelectExperiment({ target: { value: initialExperiment } });
-    } else if (experiments[0]) {
-      await this.handleSelectExperiment({ target: { value: null } })
-    }
+    await this.handleSelectExperiment({ target: { value: initialExperiment } });
   }
 
   handleSelectExperiment = async (event) => {
-    if (!event.target.value) {
-      return this.setState({
-        selectedExperiment: null,
-      });
-    }
-
     const experiment = this.state.experiments.find(s => s.data.experiment === event.target.value);
 
     this.setState({
       selectedExperiment: experiment,
-    });
-  }
-
-  handleInputExperimentName = async (event) => {
-    this.setState({
-      experimentName: event.target.value,
     });
   }
 
@@ -189,7 +178,6 @@ export default class XnatView extends Component {
       selectedProject,
       selectedSubject,
       selectedExperiment,
-      experimentName,
     } = this.state;
 
     const { bundles, onNewData } = this.props;
@@ -219,7 +207,6 @@ export default class XnatView extends Component {
             project={selectedProject}
             subject={selectedSubject}
             experiment={selectedExperiment}
-            experimentName={experimentName}
             onUpdateStatus={this.handleUpdateStatus}
           />
         )}
@@ -237,23 +224,20 @@ export default class XnatView extends Component {
             <div class="select-box">
               <label>Subject</label>
               <select name="subject" onChange={this.handleSelectSubject}>
+                <option key="new" value={null}>Auto</option>
                 {_.map(subjects, s =>
                   <option key={s.data.subject} value={s.data.subject} selected={s.data.subject === _.get(selectedSubject, 'data.subject')}>{s.data.subject_label}</option>
                 )};
               </select>
             </div>
             <div class="select-box">
-              <label>Sleep Research Session</label>
+              <label>Session</label>
               <select name="experiment" onChange={this.handleSelectExperiment}>
-                <option key="new" value={null}>Create New Session</option>
+                <option key="new" value={null}>Auto</option>
                 {_.map(experiments, e =>
                   <option key={e.data.experiment} value={e.data.experiment} selected={e.data.experiment === _.get(selectedExperiment, 'data.experiment')}>{e.data.experiment_label}</option>
                 )};
               </select>
-            </div>
-            <div class="select-box">
-              <label>New Session Name</label>
-              <input id="experiment-name" name="experimentName" onChange={this.handleInputExperimentName}></input>
             </div>
           </div>
         </div>

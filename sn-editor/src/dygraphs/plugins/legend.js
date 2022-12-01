@@ -288,7 +288,7 @@ class Legend {
          if (!series.isVisible) continue;
          if (sepLines) html += '<br>';
          const cls = series.isHighlighted ? ' class="highlight"' : '';
-         html += `<span${cls}> <b><span style='color: ${series.color};'>${series.labelHTML}</span></b>:&#160;${series.yHTML}</span>`;
+         html += `<span${cls}> <b><span style='color: ${series.color};'>${series.labelHTML}</span></b>: ${series.yHTML}</span>`;
       }
       return html;
    }

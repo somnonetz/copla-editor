@@ -26,7 +26,7 @@ export default class WebResource {
           resolve(xhr.response);
         }
         else {
-          reject(xhr.response);
+          resolve("");
         }
       };
 

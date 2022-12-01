@@ -103,7 +103,7 @@ export default class App extends Component {
 
     const bundles = await Promise.all(this.state.bundles.map(async bundle => {
       console.log(bundle.edf.file.name);
-      if (bundle.edf.file.name == edfName) {
+      if (bundle.edf.file.name === edfName) {
         return await new Bundle({edf: bundle.edf.file.file, artifacts: file}).load;
       } else {
         return bundle;
@@ -166,7 +166,7 @@ export default class App extends Component {
     return (
       <div className={containerClass}>
         <header className="site-header dashed-bottom">
-          <a href="." className="site-title">copla-editor</a>
+          <a href="." className="site-title">EDF Viewer</a>
           {hasActiveBundle && (
             <nav>
               <Controls proxy={this.proxy} />
@@ -175,7 +175,9 @@ export default class App extends Component {
                 onClick={this.toggleInfobox}
                 title="Zeige Dateiinfos"
               >
-                ℹ️️
+                <span role="img" aria-label="info">
+                  ℹ️️
+                </span>
               </button>
             </nav>
           )}
@@ -194,7 +196,6 @@ export default class App extends Component {
         </main>
 
         <footer className="site-footer dashed-top">
-          Gitlab: <a href="https://git.tools.f4.htw-berlin.de/somnonetz/copla-editor">somnonetz/copla-editor</a>
         </footer>
 
         {isInfoboxVisible && (

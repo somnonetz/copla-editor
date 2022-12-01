@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { formatSize } from '../utils/utils';
 
 const edfHeader = [
   'numberOfSignals',
@@ -18,7 +16,7 @@ const edfHeader = [
 
 const EdfInfoBox = ({ edf, onClose }) => (
   <div className="infobox">
-    <button className="toggleInfobox" onClick={onClose}>
+    <button className="btn btn-default toggleInfobox" onClick={onClose}>
       ×
     </button>
     {edf && (

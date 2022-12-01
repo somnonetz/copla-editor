@@ -49,6 +49,10 @@
   background: #eee;
 }
 
+.infobox h2::before {
+  content: none;
+}
+
 .infobox .toggleInfobox {
   position: absolute;
   top: 1px;
@@ -74,4 +78,8 @@
 
 .infobox tr:nth-child(odd) td {
   background: #ddd;
+}
+
+.xnat {
+  margin: 1rem 0;
 }

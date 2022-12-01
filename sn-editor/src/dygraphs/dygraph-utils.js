@@ -1233,12 +1233,12 @@ export function dateAxisLabelFormatter(date, granularity, opts) {
       return `${year}`;
    }
    else if (granularity >= DygraphTickers.Granularity.MONTHLY) {
-      return `${SHORT_MONTH_NAMES_[month]}&#160;${year}`;
+      return `${SHORT_MONTH_NAMES_[month]} ${year}`;
    }
    const frac = hours * 3600 + mins * 60 + secs + 1e-3 * millis;
    if (frac === 0 || granularity >= DygraphTickers.Granularity.DAILY) {
       // e.g. '21 Jan' (%d%b)
-      return `${zeropad(day)}&#160;${SHORT_MONTH_NAMES_[month]}`;
+      return `${zeropad(day)} ${SHORT_MONTH_NAMES_[month]}`;
    }
    return hmsString_(hours, mins, secs, millis);
 }
